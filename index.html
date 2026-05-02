@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simulateur de projet locatif</title>
+    <meta
+      name="description"
+      content="Simulateur one-page pour evaluer rapidement la rentabilite d'un projet locatif en France."
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Investissement locatif</p>
+        <h1>Simulateur de projet locatif</h1>
+      </div>
+      <button class="ghost-button" type="button" id="resetButton">Reinitialiser</button>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="intro-title">
+        <div>
+          <h2 id="intro-title">Estimer la solidite d'un bien avant d'aller plus loin.</h2>
+          <p>
+            Saisissez le prix, le loyer, les charges, le financement et les risques. Les
+            resultats se mettent a jour automatiquement.
+          </p>
+        </div>
+        <div class="summary-strip" aria-label="Indicateurs principaux">
+          <span class="has-tooltip" tabindex="0" data-tooltip="Note globale issue du score financier et des risques qualitatifs."><strong id="stripRating">Moyen</strong> Note</span>
+          <span class="has-tooltip" tabindex="0" data-tooltip="Cash-flow mensuel apres charges, credit et impot estime."><strong id="stripCashflow">-</strong> Cash-flow</span>
+          <span class="has-tooltip" tabindex="0" data-tooltip="Rendement net avant impot, calcule sur le cout total du projet."><strong id="stripYield">-</strong> Rendement net</span>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <aside class="panel projects-panel" aria-labelledby="projects-title">
+          <div class="section-heading">
+            <p class="eyebrow">Portefeuille</p>
+            <h2 id="projects-title">Simulations</h2>
+            <p>Enregistrez plusieurs projets et rechargez leurs parametres complets.</p>
+          </div>
+          <label>
+            <span>Nom du projet</span>
+            <input id="projectName" type="text" maxlength="80" placeholder="Studio Lyon, T2 Nantes..." />
+          </label>
+          <div class="project-actions">
+            <button class="primary-button" type="button" id="saveProjectButton">Enregistrer</button>
+            <button class="ghost-button" type="button" id="newProjectButton">Nouvelle simulation</button>
+          </div>
+          <p class="project-status" id="projectStatus" role="status"></p>
+          <div class="project-list" id="projectList" aria-label="Simulations sauvegardees"></div>
+        </aside>
+
+        <form class="panel inputs-panel" id="simulatorForm">
+          <section class="form-section">
+            <div class="section-heading">
+              <h2>Acquisition</h2>
+              <p>Cout total du projet et apport mobilise.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                <span>Prix d'achat</span>
+                <input data-field="purchasePrice" type="number" min="1" step="1000" value="120000" />
+              </label>
+              <label>
+                <span>Frais de notaire</span>
+                <div class="unit-input">
+                  <input data-field="notaryRate" type="number" min="0" max="20" step="0.1" value="7.5" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Frais d'agence</span>
+                <input data-field="agencyFees" type="number" min="0" step="500" value="0" />
+              </label>
+              <label>
+                <span>Travaux</span>
+                <input data-field="renovationWorks" type="number" min="0" step="500" value="5000" />
+              </label>
+              <label>
+                <span>Mobilier</span>
+                <input data-field="furnitureCost" type="number" min="0" step="500" value="3000" />
+              </label>
+              <label>
+                <span>Autres frais initiaux</span>
+                <input data-field="otherUpfrontCosts" type="number" min="0" step="100" value="0" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <h2>Loyer</h2>
+              <p>Revenus locatifs et vacance prudente.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                <span>Loyer mensuel hors charges</span>
+                <input data-field="monthlyRent" type="number" min="1" step="10" value="650" />
+              </label>
+              <label>
+                <span>Charges recuperables</span>
+                <input data-field="tenantCharges" type="number" min="0" step="10" value="50" />
+              </label>
+              <label>
+                <span>Vacance locative</span>
+                <div class="unit-input">
+                  <input data-field="vacancyDays" type="number" min="0" max="183" step="1" value="14" />
+                  <span>jours/an</span>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <h2>Charges</h2>
+              <p>Depenses annuelles supportees par le proprietaire.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                <span>Charges non recuperables</span>
+                <input data-field="nonRecoverableCharges" type="number" min="0" step="50" value="600" />
+              </label>
+              <label>
+                <span>Taxe fonciere</span>
+                <input data-field="taxeFonciere" type="number" min="0" step="50" value="800" />
+              </label>
+              <label>
+                <span>Assurance PNO</span>
+                <input data-field="landlordInsurance" type="number" min="0" step="10" value="120" />
+              </label>
+              <label>
+                <span>Reserve entretien</span>
+                <input data-field="maintenanceReserve" type="number" min="0" step="50" value="500" />
+              </label>
+              <label>
+                <span>Gestion locative</span>
+                <div class="unit-input">
+                  <input data-field="managementFeeRate" type="number" min="0" max="20" step="0.5" value="0" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>GLI</span>
+                <div class="unit-input">
+                  <input data-field="gliRate" type="number" min="0" max="10" step="0.1" value="0" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Comptable</span>
+                <input data-field="accountingCost" type="number" min="0" step="50" value="300" />
+              </label>
+              <label>
+                <span>Autres couts annuels</span>
+                <input data-field="otherAnnualCosts" type="number" min="0" step="50" value="0" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <h2>Financement</h2>
+              <p>Emprunt, apport et cout de la dette.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                <span>Mode de financement</span>
+                <select data-field="financingMethod">
+                  <option value="mortgage">Credit immobilier</option>
+                  <option value="cash">Achat comptant</option>
+                </select>
+              </label>
+              <label>
+                <span>Apport</span>
+                <input data-field="downPayment" type="number" min="0" step="1000" value="25000" />
+              </label>
+              <label>
+                <span>Taux d'interet</span>
+                <div class="unit-input">
+                  <input data-field="interestRate" type="number" min="0" step="0.05" value="3.5" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Duree du pret</span>
+                <div class="unit-input">
+                  <input data-field="loanDurationYears" type="number" min="1" max="30" step="1" value="20" />
+                  <span>ans</span>
+                </div>
+              </label>
+              <label>
+                <span>Assurance emprunteur</span>
+                <div class="unit-input">
+                  <input data-field="borrowerInsuranceRate" type="number" min="0" step="0.05" value="0.3" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Frais bancaires</span>
+                <input data-field="bankFees" type="number" min="0" step="100" value="1000" />
+              </label>
+            </div>
+          </section>
+
+          <details class="form-section">
+            <summary>Fiscalite et risques</summary>
+            <div class="field-grid details-grid">
+              <label>
+                <span>Regime fiscal</span>
+                <select data-field="taxMode">
+                  <option value="lmnp-real">LMNP reel simplifie</option>
+                  <option value="micro-bic">Micro-BIC</option>
+                  <option value="micro-foncier">Micro-foncier</option>
+                  <option value="manual">Estimation manuelle</option>
+                </select>
+              </label>
+              <label>
+                <span>TMI</span>
+                <div class="unit-input">
+                  <input data-field="marginalTaxRate" type="number" min="0" max="70" step="1" value="30" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Prelevements sociaux</span>
+                <div class="unit-input">
+                  <input data-field="socialContributionsRate" type="number" min="0" max="70" step="0.1" value="17.2" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Amortissement / deduction annuelle</span>
+                <input data-field="depreciationDeduction" type="number" min="0" step="100" value="2500" />
+              </label>
+              <label>
+                <span>DPE</span>
+                <select data-field="dpeRating">
+                  <option>A</option>
+                  <option>B</option>
+                  <option>C</option>
+                  <option selected>D</option>
+                  <option>E</option>
+                  <option>F</option>
+                  <option>G</option>
+                </select>
+              </label>
+              <label>
+                <span>Demande locative</span>
+                <select data-field="rentalDemand">
+                  <option value="strong">Forte</option>
+                  <option value="medium">Moyenne</option>
+                  <option value="weak">Faible</option>
+                </select>
+              </label>
+              <label>
+                <span>Etat de l'immeuble</span>
+                <select data-field="buildingCondition">
+                  <option value="good">Bon</option>
+                  <option value="average">Moyen</option>
+                  <option value="risky">Risque</option>
+                </select>
+              </label>
+              <label>
+                <span>Travaux de copropriete</span>
+                <select data-field="majorWorksRisk">
+                  <option value="no">Non</option>
+                  <option value="uncertain">Incertain</option>
+                  <option value="yes">Oui</option>
+                </select>
+              </label>
+              <label>
+                <span>Liquidite a la revente</span>
+                <select data-field="resaleLiquidity">
+                  <option value="easy">Facile</option>
+                  <option value="normal">Normale</option>
+                  <option value="hard">Difficile</option>
+                </select>
+              </label>
+            </div>
+          </details>
+        </form>
+
+        <aside class="results-column" aria-live="polite">
+          <section class="panel result-card">
+            <div class="rating-row">
+              <div>
+                <p class="eyebrow">Diagnostic</p>
+                <h2 id="ratingLabel">Moyen</h2>
+              </div>
+              <div class="score-pill has-tooltip" tabindex="0" data-tooltip="Score de 0 a 100 combinant rendement, cash-flow, dette et risques du bien."><span id="scoreValue">--</span>/100</div>
+            </div>
+            <p id="ratingInterpretation" class="interpretation"></p>
+            <div class="hero-metrics">
+              <div class="has-tooltip" tabindex="0" data-tooltip="Argent restant ou a ajouter chaque mois apres charges, credit et impot estime.">
+                <span>Cash-flow mensuel</span>
+                <strong id="monthlyCashFlowAfterTax">-</strong>
+              </div>
+              <div class="has-tooltip" tabindex="0" data-tooltip="Rendement du bien apres vacance et charges, avant financement et impot.">
+                <span>Rendement net avant impot</span>
+                <strong id="netYieldBeforeTax">-</strong>
+              </div>
+              <div class="has-tooltip" tabindex="0" data-tooltip="Performance annuelle du cash investi, calculee avec le cash-flow avant impot.">
+                <span>Retour sur cash</span>
+                <strong id="returnOnCash">-</strong>
+              </div>
+            </div>
+            <div class="break-even-callout has-tooltip" tabindex="0" data-tooltip="Loyer mensuel hors charges estime pour obtenir un cash-flow apres impot egal a zero avec les parametres actuels.">
+              <span>Loyer d'equilibre cash-flow 0</span>
+              <strong id="breakEvenRentAfterTax">-</strong>
+              <p>Ni gain ni perte mensuelle apres charges, credit et impot estime.</p>
+            </div>
+            <button class="primary-button" type="button" id="copyButton">Copier le resume</button>
+            <p class="copy-status" id="copyStatus" role="status"></p>
+          </section>
+
+          <section class="panel score-panel">
+            <h2>Score et risque</h2>
+            <div class="score-split" aria-label="Composition de la note">
+              <div>
+                <span>Score financier</span>
+                <strong id="financialScoreValue">--/70</strong>
+              </div>
+              <div>
+                <span>Qualite du risque</span>
+                <strong id="riskScoreValue">--/30</strong>
+              </div>
+            </div>
+            <p class="score-explanation" id="riskScoreExplanation"></p>
+            <div class="risk-score-list" id="riskScoreRows"></div>
+          </section>
+
+          <section class="panel warnings-panel" id="warningsPanel" hidden>
+            <h2>Alertes</h2>
+            <ul id="warningsList"></ul>
+          </section>
+
+          <section class="panel metrics-panel">
+            <h2>Indicateurs detailles</h2>
+            <dl class="metric-list" id="metricsList"></dl>
+          </section>
+
+          <section class="panel equations-panel">
+            <h2>Calculs et equations</h2>
+            <div class="equation-list" id="equationsList"></div>
+          </section>
+
+          <section class="panel sensitivity-panel">
+            <h2>Sensibilite</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Cash-flow</th>
+                  <th>Rendement</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody id="sensitivityRows"></tbody>
+            </table>
+          </section>
+        </aside>
+      </div>
+
+      <section class="method-panel" aria-labelledby="method-title">
+        <div>
+          <p class="eyebrow">Methodologie</p>
+          <h2 id="method-title">Lecture rapide des resultats</h2>
+        </div>
+        <div class="method-grid">
+          <article>
+            <h3>Rendement brut</h3>
+            <p>Utile pour comparer des annonces, mais il ignore les charges et les travaux.</p>
+          </article>
+          <article>
+            <h3>Rendement net</h3>
+            <p>Mesure plus robuste de la qualite du bien avant financement et fiscalite.</p>
+          </article>
+          <article>
+            <h3>Couverture de dette</h3>
+            <p>Au-dessus de 1, les loyers couvrent charges et credit. En dessous, il faut ajouter du cash.</p>
+          </article>
+          <article>
+            <h3>Fiscalite</h3>
+            <p>Calcul simplifie a confirmer avec un expert, surtout en LMNP reel, SCI ou forte imposition.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>
