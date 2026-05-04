@@ -22,6 +22,11 @@ Mettre en place le shell initial en francais du simulateur one-page de projet lo
 - [x] Passe UI globale : palette, grille responsive, panneaux, boutons et etats visuels.
 - [x] Ajout d'un panneau UI expliquant la decomposition du score financier et du score de risque qualitatif.
 - [x] Alignement PRD/app sur les equations de vacance en jours, cash investi plafonne et loyers d'equilibre avec frais variables.
+- [x] Correction fiscale : regimes LMNP reel, micro-BIC, micro-foncier et manuel pris en compte dans les calculs.
+- [x] Ajout TEOM recuperable, CFE, relocation/diagnostics et plafonnement de score lie au DPE reglementaire.
+- [x] Ajout d'un overlay d'aide detaille expliquant formules, hypotheses et compromis de calcul.
+- [x] Completion du guide avec les formules du panneau equations et densification de la mise en page pour limiter le scroll vertical.
+- [x] Remplacement des scrolls internes par des widgets detailles ouvrables au clic.
 
 ## Fichiers crees
 
@@ -33,7 +38,7 @@ Mettre en place le shell initial en francais du simulateur one-page de projet lo
 ## Notes de portee
 
 - Le shell fonctionne sans build ni serveur applicatif.
-- Les calculs fiscaux restent volontairement simplifies, comme demande dans le PRD.
+- Les calculs fiscaux restent volontairement simplifies, comme demande dans le PRD, mais le regime selectionne pilote maintenant la base taxable.
 - Le score final reste sur 100 points : 70 points financiers et 30 points de risque qualitatif.
 - Les scenarios de sensibilite utilisent les variantes du PRD : optimiste, base et stress.
 

@@ -60,7 +60,15 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 24px 0 16px;
+  padding: 18px 0 12px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .eyebrow {
@@ -99,10 +107,10 @@ h3 {
 .intro {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-  gap: 24px;
+  gap: 18px;
   align-items: stretch;
-  margin-bottom: 18px;
-  padding: 24px;
+  margin-bottom: 14px;
+  padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
@@ -127,7 +135,7 @@ h3 {
 .summary-strip span {
   position: relative;
   min-width: 0;
-  padding: 14px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-muted);
@@ -144,7 +152,7 @@ h3 {
 .workspace {
   display: grid;
   grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(320px, 0.82fr);
-  gap: 18px;
+  gap: 14px;
   align-items: start;
   min-width: 0;
 }
@@ -164,10 +172,10 @@ h3 {
 
 .projects-panel {
   display: grid;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 14px;
   position: sticky;
-  top: 16px;
+  top: 12px;
   min-width: 0;
 }
 
@@ -260,7 +268,7 @@ h3 {
 }
 
 .form-section {
-  padding: 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   min-width: 0;
 }
@@ -270,19 +278,19 @@ h3 {
 }
 
 .section-heading {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 16px;
+  gap: 10px 12px;
   min-width: 0;
 }
 
 label {
   display: grid;
-  gap: 7px;
+  gap: 5px;
   color: #475467;
   font-size: 0.88rem;
   font-weight: 700;
@@ -347,12 +355,12 @@ input,
 select {
   min-width: 0;
   width: 100%;
-  min-height: 44px;
+  min-height: 40px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #fbfdff;
   color: var(--ink);
-  padding: 10px 11px;
+  padding: 8px 10px;
 }
 
 input:hover,
@@ -379,7 +387,7 @@ button:focus-visible {
 
 .unit-input input {
   border: 0;
-  min-height: 40px;
+  min-height: 38px;
 }
 
 .unit-input span {
@@ -392,20 +400,22 @@ details.form-section {
 }
 
 summary {
-  padding: 20px;
+  padding: 14px 16px;
   font-weight: 800;
   cursor: pointer;
 }
 
 .details-grid {
-  padding: 0 20px 20px;
+  padding: 0 16px 16px;
 }
 
 .results-column {
   display: grid;
-  gap: 16px;
-  position: static;
+  gap: 12px;
+  position: sticky;
+  top: 12px;
   min-width: 0;
+  align-self: start;
 }
 
 .result-card {
@@ -418,8 +428,71 @@ summary {
 .metrics-panel,
 .equations-panel,
 .sensitivity-panel {
-  padding: 20px;
+  padding: 14px;
   min-width: 0;
+}
+
+.widget-panel {
+  padding: 0;
+}
+
+.widget-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 50px;
+  padding: 12px 14px;
+  list-style: none;
+}
+
+.widget-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.widget-panel summary::after {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--accent-dark);
+  content: "+";
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.widget-panel[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.widget-panel[open] summary::after {
+  content: "-";
+}
+
+.widget-panel summary span {
+  display: block;
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.widget-panel summary small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.widget-panel .metric-list,
+.widget-panel .equation-list,
+.widget-panel table {
+  margin: 14px;
+  width: calc(100% - 28px);
 }
 
 .rating-row {
@@ -442,12 +515,12 @@ summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin: 18px 0;
+  margin: 12px 0;
 }
 
 .hero-metrics div {
   min-width: 0;
-  padding: 13px;
+  padding: 10px;
   border-radius: var(--radius);
   background: var(--surface-muted);
   border: 1px solid transparent;
@@ -455,7 +528,7 @@ summary {
 
 .hero-metrics span {
   display: block;
-  min-height: 34px;
+  min-height: 28px;
   color: var(--muted);
   font-size: 0.76rem;
   font-weight: 800;
@@ -468,8 +541,8 @@ summary {
 }
 
 .break-even-callout {
-  margin: 16px 0;
-  padding: 14px;
+  margin: 12px 0;
+  padding: 12px;
   border: 1px solid rgba(8, 121, 95, 0.26);
   border-radius: var(--radius);
   background: var(--accent-soft);
@@ -485,7 +558,7 @@ summary {
 .break-even-callout strong {
   display: block;
   margin-top: 4px;
-  font-size: 1.55rem;
+  font-size: 1.35rem;
 }
 
 .break-even-callout p {
@@ -527,6 +600,98 @@ summary {
   background: #f7fafc;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 24, 40, 0.56);
+}
+
+.help-overlay[hidden] {
+  display: none;
+}
+
+.help-dialog {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(1040px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: hidden;
+  border: 1px solid rgba(215, 224, 234, 0.8);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 28px 80px rgba(16, 24, 40, 0.32);
+}
+
+.help-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--line);
+  background: #f9fbfd;
+}
+
+.help-header h2 {
+  margin-bottom: 0;
+  font-size: 1.35rem;
+}
+
+.help-close {
+  flex: 0 0 auto;
+}
+
+.help-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 22px 24px;
+}
+
+.help-section {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfdff;
+}
+
+.help-section h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.help-section p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.help-section code {
+  display: block;
+  overflow-x: auto;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #edf2f7;
+  color: var(--ink);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
 .copy-status {
   min-height: 22px;
   margin: 10px 0 0;
@@ -536,7 +701,7 @@ summary {
 
 .score-panel {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .score-split {
@@ -547,7 +712,7 @@ summary {
 
 .score-split div {
   min-width: 0;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-muted);
@@ -563,7 +728,7 @@ summary {
 
 .score-split strong {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   font-size: 1.15rem;
 }
 
@@ -576,7 +741,7 @@ summary {
 
 .risk-score-list {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .risk-score-list div {
@@ -585,7 +750,7 @@ summary {
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
-  padding: 9px 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -614,11 +779,13 @@ summary {
   margin: 0;
   padding-left: 18px;
   color: var(--warning);
+  font-size: 0.88rem;
+  line-height: 1.4;
 }
 
 .metric-list {
   display: grid;
-  gap: 10px;
+  gap: 4px;
   margin: 0;
   min-width: 0;
 }
@@ -629,7 +796,7 @@ summary {
   justify-content: space-between;
   gap: 16px;
   min-width: 0;
-  padding: 10px 0;
+  padding: 7px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -653,27 +820,27 @@ summary {
 
 .equation-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
 .equation-item {
   min-width: 0;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #f9fbfd;
 }
 
 .equation-item h3 {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 0.95rem;
 }
 
 .equation-item code {
   display: block;
   overflow-x: auto;
-  padding: 8px;
+  padding: 7px;
   border-radius: 6px;
   background: #edf2f7;
   color: var(--ink);
@@ -684,7 +851,7 @@ summary {
 }
 
 .equation-item p {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
   font-size: 0.84rem;
   line-height: 1.45;
@@ -699,7 +866,7 @@ table {
 
 th,
 td {
-  padding: 11px 8px;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--line);
   text-align: left;
 }
@@ -713,19 +880,19 @@ th {
 .method-panel {
   display: grid;
   grid-template-columns: 0.8fr 1.6fr;
-  gap: 24px;
-  margin: 22px 0 42px;
-  padding: 24px;
+  gap: 16px;
+  margin: 16px 0 28px;
+  padding: 16px;
 }
 
 .method-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .method-grid article {
-  padding-top: 12px;
+  padding-top: 8px;
   border-top: 3px solid var(--blue);
 }
 
@@ -746,6 +913,7 @@ th {
     grid-column: 1 / -1;
     grid-template-columns: minmax(340px, 0.85fr) minmax(0, 1fr);
     align-items: start;
+    position: static;
   }
 
   .result-card {
@@ -780,10 +948,19 @@ th {
     flex-direction: column;
   }
 
+  .topbar-actions {
+    justify-content: stretch;
+  }
+
+  .topbar-actions button {
+    flex: 1 1 160px;
+  }
+
   .summary-strip,
   .field-grid,
   .hero-metrics,
-  .method-grid {
+  .method-grid,
+  .help-body {
     grid-template-columns: 1fr;
   }
 
@@ -801,5 +978,23 @@ th {
 
   .score-split {
     grid-template-columns: 1fr;
+  }
+
+  .help-overlay {
+    padding: 12px;
+  }
+
+  .help-dialog {
+    max-height: 92vh;
+  }
+
+  .help-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .help-body {
+    padding: 16px;
   }
 }

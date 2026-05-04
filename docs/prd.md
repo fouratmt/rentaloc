@@ -166,11 +166,14 @@ effective_annual_rent = gross_annual_rent - vacancy_cost
 Field	Type	Default	Required	Notes
 Non-recoverable co-ownership charges	Annual currency	€600	Yes	Landlord part only
 Taxe foncière	Annual currency	€800	Yes	Property tax
+Recoverable TEOM	Annual currency	€0	No	Recoverable waste collection tax included in taxe foncière
 Landlord insurance / PNO	Annual currency	€120	Yes	Propriétaire non occupant insurance
 Maintenance reserve	Annual currency or %	€500	Yes	Repairs, small replacements
 Property management fee	% of collected rent	0%	No	If using agency
 Unpaid rent insurance / GLI	% of collected rent	0%	No	Usually percentage of rent
 Accounting cost	Annual currency	€300	No	Relevant for LMNP réel
+CFE / furnished rental fees	Annual currency	€0	No	Cotisation foncière des entreprises or recurring furnished-rental tax costs
+Relocation / diagnostics reserve	Annual currency	€0	No	Annualized reletting, diagnostics, listing, handover or tenant-change costs
 Other annual costs	Annual currency	€0	No	Miscellaneous
 
 Calculated:
@@ -184,7 +187,9 @@ management_fee = effective_annual_rent * management_fee_rate
 
 unpaid_rent_insurance = effective_annual_rent * gli_rate
 
-annual_operating_expenses = non_recoverable_charges + taxe_fonciere + landlord_insurance + maintenance_reserve + management_fee + unpaid_rent_insurance + accounting_cost + other_annual_costs
+net_taxe_fonciere = max(0, taxe_fonciere - min(max(recoverable_teom, 0), taxe_fonciere))
+
+annual_operating_expenses = non_recoverable_charges + net_taxe_fonciere + landlord_insurance + maintenance_reserve + management_fee + unpaid_rent_insurance + accounting_cost + cfe + relocation_reserve + other_annual_costs
 
 net_operating_income = effective_annual_rent - annual_operating_expenses
 
@@ -253,36 +258,43 @@ Field	Type	Default	Required	Notes
 Rental type	Select	Furnished	Yes	Furnished or unfurnished
 Tax mode	Select	LMNP réel / Micro-BIC / Micro-foncier / Simplified manual	Yes	Keep simple
 Marginal income tax rate	%	30%	Yes	User input
-Social contributions	%	17.2%	Yes	Default France social contributions
+Social contributions	%	18.6%	Yes	Default manual rate for furnished rental in 2026; mode-specific formulas can override it
 Estimated taxable rental profit	Currency	Auto/manual	No	Advanced override
 Estimated annual tax	Currency	Auto/manual	No	Advanced override
 
-Recommended V1 behavior:
+Implemented V1 behavior:
 
-* Default to simplified manual tax estimate.
-* Let user either:
-    1. Use simple estimated tax rate on taxable profit, or
-    2. Enter annual tax manually.
+* Use the selected tax mode in the calculation instead of treating the selector as informational only.
+* For furnished rental in 2026, use 18.6% social contributions by default.
+* For unfurnished micro-foncier, use 17.2% social contributions.
+* Let manual mode use an annual tax amount entered by the user.
 
-Simplified formula:
+Common formula:
 
-estimated_tax = taxable_profit * (marginal_tax_rate + social_contributions_rate)
+estimated_tax = taxable_profit * (marginal_tax_rate + applied_social_contributions_rate)
 
-Where:
-
-taxable_profit = max(0, net_operating_income - deductible_interest - deductible_expenses_adjustment)
-
-For LMNP réel, V1 may include an optional field:
-
-* Annual depreciation/accounting deduction.
-
-Then:
+LMNP réel simplified:
 
 taxable_profit = max(0, net_operating_income - annual_interest - depreciation_deduction)
+
+Micro-BIC long-term furnished rental:
+
+taxable_receipts = effective_annual_rent + effective_recoverable_tenant_charges
+
+taxable_profit = taxable_receipts - min(taxable_receipts, max(taxable_receipts * 50%, 305))
+
+Micro-foncier unfurnished rental:
+
+taxable_profit = effective_annual_rent * 70%
+
+Manual estimate:
+
+estimated_tax = manual_annual_tax
 
 Important UI note:
 
 * Display a warning: “Tax calculation is simplified. Confirm with an accountant, especially for LMNP réel, SCI, or high-income situations.”
+* 2026 reference assumption: furnished rental uses 18.6% social contributions and unfurnished rental uses 17.2% social contributions according to impots.gouv.fr guidance on rental income social contributions.
 
 8.6 Risk and quality inputs
 
@@ -293,7 +305,7 @@ Building condition	Select	Good	Yes	Good, average, risky
 Major co-ownership works expected	Boolean	No	Yes	Roof, facade, elevator, etc.
 Liquidity/resale quality	Select	Good	Yes	Easy, normal, hard
 
-These inputs affect the qualitative rating, not the core financial formulas.
+These inputs affect the qualitative rating, not the core financial formulas. DPE also applies a regulatory cap to the final score: G is capped at Bad because it is no longer rentable for new, renewed or tacitly renewed leases from 1 January 2025; F is capped at Risky because the same restriction applies from 1 January 2028. Reference assumption: Service-Public lists the rental restrictions for DPE G from 2025, F from 2028, and E from 2034.
 
 9. Output metrics
 
@@ -367,7 +379,7 @@ The break-even rent should estimate the monthly rent required to reach zero mont
 
 Because management fees and unpaid-rent insurance are calculated as a percentage of collected rent, the before-tax formula must separate fixed and rent-indexed expenses.
 
-fixed_operating_expenses = non_recoverable_charges + taxe_fonciere + landlord_insurance + maintenance_reserve + accounting_cost + other_annual_costs
+fixed_operating_expenses = non_recoverable_charges + net_taxe_fonciere + landlord_insurance + maintenance_reserve + accounting_cost + cfe + relocation_reserve + other_annual_costs
 
 variable_expense_rate = management_fee_rate + gli_rate
 
@@ -418,12 +430,16 @@ Score	Rating	Label
 
 Regardless of score, show warnings if:
 
-* DPE is F or G.
+* DPE is G: rental ban applies from 1 January 2025 for new, renewed or tacitly renewed leases; cap rating to Bad.
+* DPE is F: rental ban applies from 1 January 2028; cap rating to Risky.
+* DPE is E: rental ban applies from 1 January 2034; show long-term warning.
 * Monthly cash flow after tax is below -€300.
 * Net yield before tax is below 3%.
 * Vacancy assumption is below 8 days per year.
 * Maintenance reserve is zero.
 * Taxe foncière is missing.
+* Recoverable TEOM is missing while taxe foncière is present.
+* Furnished rental CFE is missing.
 * Purchase price is more than 20 years of rent.
 * Mortgage down payment is higher than total project cost and must be capped in calculations.
 
@@ -580,16 +596,19 @@ Monthly rent excluding charges	€650
 Vacancy	14 days/year
 Non-recoverable charges	€600/year
 Taxe foncière	€800/year
+Recoverable TEOM	€0/year
 Insurance	€120/year
 Maintenance reserve	€500/year
 Accounting	€300/year
+CFE / furnished rental fees	€0/year
+Relocation / diagnostics reserve	€0/year
 Down payment	€25,000
 Loan rate	3.5%
 Loan duration	20 years
 Borrower insurance	0.3%
 Tax mode	Simplified / LMNP réel estimate
 Marginal tax rate	30%
-Social contributions	17.2%
+Social contributions	18.6%
 DPE	D
 Rental demand	Strong
 

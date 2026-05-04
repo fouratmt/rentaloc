@@ -16,7 +16,10 @@
         <p class="eyebrow">Investissement locatif</p>
         <h1>Simulateur de projet locatif</h1>
       </div>
-      <button class="ghost-button" type="button" id="resetButton">Reinitialiser</button>
+      <div class="topbar-actions">
+        <button class="ghost-button" type="button" id="helpButton" aria-haspopup="dialog">Guide des calculs</button>
+        <button class="ghost-button" type="button" id="resetButton">Reinitialiser</button>
+      </div>
     </header>
 
     <main>
@@ -130,6 +133,10 @@
                 <input data-field="taxeFonciere" type="number" min="0" step="50" value="800" />
               </label>
               <label>
+                <span>TEOM recuperable</span>
+                <input data-field="recoverableTaxeOrdures" type="number" min="0" step="10" value="0" />
+              </label>
+              <label>
                 <span>Assurance PNO</span>
                 <input data-field="landlordInsurance" type="number" min="0" step="10" value="120" />
               </label>
@@ -154,6 +161,14 @@
               <label>
                 <span>Comptable</span>
                 <input data-field="accountingCost" type="number" min="0" step="50" value="300" />
+              </label>
+              <label>
+                <span>CFE / frais LMNP</span>
+                <input data-field="cfe" type="number" min="0" step="50" value="0" />
+              </label>
+              <label>
+                <span>Relocation / diagnostics</span>
+                <input data-field="relocationReserve" type="number" min="0" step="50" value="0" />
               </label>
               <label>
                 <span>Autres couts annuels</span>
@@ -229,13 +244,17 @@
               <label>
                 <span>Prelevements sociaux</span>
                 <div class="unit-input">
-                  <input data-field="socialContributionsRate" type="number" min="0" max="70" step="0.1" value="17.2" />
+                  <input data-field="socialContributionsRate" type="number" min="0" max="70" step="0.1" value="18.6" />
                   <span>%</span>
                 </div>
               </label>
               <label>
                 <span>Amortissement / deduction annuelle</span>
                 <input data-field="depreciationDeduction" type="number" min="0" step="100" value="2500" />
+              </label>
+              <label>
+                <span>Impot annuel manuel</span>
+                <input data-field="manualAnnualTax" type="number" min="0" step="100" value="0" />
               </label>
               <label>
                 <span>DPE</span>
@@ -339,18 +358,27 @@
             <ul id="warningsList"></ul>
           </section>
 
-          <section class="panel metrics-panel">
-            <h2>Indicateurs detailles</h2>
+          <details class="panel widget-panel metrics-panel">
+            <summary>
+              <span>Indicateurs detailles</span>
+              <small>Ouvrir les ratios et montants complets</small>
+            </summary>
             <dl class="metric-list" id="metricsList"></dl>
-          </section>
+          </details>
 
-          <section class="panel equations-panel">
-            <h2>Calculs et equations</h2>
+          <details class="panel widget-panel equations-panel">
+            <summary>
+              <span>Calculs et equations</span>
+              <small>Ouvrir les substitutions numeriques</small>
+            </summary>
             <div class="equation-list" id="equationsList"></div>
-          </section>
+          </details>
 
-          <section class="panel sensitivity-panel">
-            <h2>Sensibilite</h2>
+          <details class="panel widget-panel sensitivity-panel">
+            <summary>
+              <span>Sensibilite</span>
+              <small>Ouvrir les scenarios optimiste, base et stress</small>
+            </summary>
             <table>
               <thead>
                 <tr>
@@ -362,7 +390,7 @@
               </thead>
               <tbody id="sensitivityRows"></tbody>
             </table>
-          </section>
+          </details>
         </aside>
       </div>
 
@@ -391,6 +419,145 @@
         </div>
       </section>
     </main>
+
+    <section class="help-overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+      <div class="help-dialog" role="document">
+        <header class="help-header">
+          <div>
+            <p class="eyebrow">Methodologie</p>
+            <h2 id="helpTitle">Guide des formules et hypotheses</h2>
+          </div>
+          <button class="ghost-button help-close" type="button" id="helpCloseButton">Fermer</button>
+        </header>
+
+        <div class="help-body">
+          <section class="help-section">
+            <h3>Logique generale</h3>
+            <p>
+              Le simulateur estime un projet locatif sur une annee stabilisee. Il ne predit pas la valeur future du bien :
+              il mesure surtout si les loyers couvrent les charges, la dette et une fiscalite simplifiee avec les hypotheses saisies.
+            </p>
+            <p>
+              Les rendements sont calcules hors charges recuperables pour comparer la qualite du bien. Les charges recuperables
+              peuvent en revanche entrer dans certaines bases fiscales, notamment en location meublee au micro-BIC.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Acquisition</h3>
+            <code>cout total = prix + frais notaire + agence + travaux + mobilier + autres frais initiaux</code>
+            <p>
+              Les frais de notaire sont estimes en pourcentage du prix d'achat. Le taux par defaut de 7,5 % correspond a un ordre
+              de grandeur courant dans l'ancien ; dans le neuf, il faut souvent utiliser un taux plus bas. Les frais bancaires sont
+              suivis dans le cash investi, mais ne gonflent pas automatiquement le montant finance.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Loyers et vacance</h3>
+            <code>loyer annuel brut = loyer mensuel hors charges x 12</code>
+            <code>taux de vacance = min(max(jours vacants, 0), 183) / 365</code>
+            <code>loyer effectif = loyer annuel brut x (1 - taux de vacance)</code>
+            <p>
+              La vacance est plafonnee a 183 jours pour eviter des saisies extremes qui rendraient les indicateurs illisibles.
+              Une vacance tres basse peut rendre le projet artificiellement bon ; sous 8 jours par an, une alerte invite a verifier
+              l'hypothese.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Charges et revenu net</h3>
+            <code>taxe fonciere nette = taxe fonciere - TEOM recuperable plafonnee</code>
+            <code>charges annuelles = charges fixes + loyer effectif x (gestion + GLI)</code>
+            <code>NOI = loyer effectif - charges annuelles</code>
+            <p>
+              Le NOI est le revenu net d'exploitation avant credit et impot. Les frais de gestion et la GLI varient avec le loyer
+              encaisse ; les autres charges sont traitees comme fixes. La CFE, les diagnostics et la relocation sont separes pour
+              eviter de les oublier dans les projets meubles ou a forte rotation.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Financement</h3>
+            <code>mensualite = capital x [taux mensuel x (1 + taux mensuel)^n] / [(1 + taux mensuel)^n - 1]</code>
+            <code>dette mensuelle = mensualite de credit + assurance emprunteur</code>
+            <code>dette annuelle = dette mensuelle x 12</code>
+            <code>cash investi = apport plafonne + frais bancaires</code>
+            <code>achat comptant : cash investi = cout total + frais bancaires</code>
+            <p>
+              Le capital emprunte finance le cout total du projet moins l'apport. L'assurance emprunteur est approximee comme un
+              taux annuel applique au capital initial. Les interets deductibles sont estimes avec le taux annuel sur le capital
+              emprunte : c'est une approximation de premiere annee, pas un tableau d'amortissement complet.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Fiscalite</h3>
+            <code>LMNP reel = max(0, NOI - interets - amortissement/deduction) x (TMI + 18,6 %)</code>
+            <code>micro-BIC = recettes charges comprises apres abattement 50 % x (TMI + 18,6 %)</code>
+            <code>micro-foncier = loyers hors charges x 70 % x (TMI + 17,2 %)</code>
+            <code>manuel = impot annuel saisi directement</code>
+            <p>
+              La fiscalite reste volontairement simplifiee. Elle ne remplace pas un calcul comptable LMNP reel, ne gere pas les
+              amortissements par composant, les deficits reportables, les cas de location courte duree, la SCI ou les cotisations
+              sociales professionnelles. Elle sert a ne pas ignorer l'impot dans la lecture du cash-flow.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Rendements et cash-flow</h3>
+            <code>rendement brut prix = loyer annuel brut / prix d'achat</code>
+            <code>rendement brut cout total = loyer annuel brut / cout total</code>
+            <code>rendement net avant impot = NOI / cout total</code>
+            <code>cash-flow avant impot = (NOI - dette annuelle) / 12</code>
+            <code>cash-flow apres impot = (NOI - dette annuelle - impot estime) / 12</code>
+            <code>couverture de dette = NOI / dette annuelle</code>
+            <code>retour sur cash avant impot = cash-flow annuel avant impot / cash investi</code>
+            <p>
+              Le rendement net mesure la qualite du bien avant financement. Le cash-flow mesure l'effort mensuel reel apres dette
+              et impot estime. Le retour sur cash affiche dans l'app est un cash-on-cash avant impot : il ne compte pas la revente,
+              la hausse de prix, ni le capital rembourse dans le credit.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Loyer d'equilibre</h3>
+            <code>avant impot = (charges fixes + dette annuelle) / [12 x (1 - vacance) x (1 - frais variables)]</code>
+            <code>apres impot = loyer ou (NOI - dette annuelle - impot estime) / 12 = 0</code>
+            <p>
+              Le seuil avant impot isole les charges fixes et les frais variables, car gestion et GLI augmentent avec le loyer.
+              Le seuil apres impot est resolu numeriquement : le simulateur teste des loyers jusqu'a trouver celui qui rend le
+              cash-flow apres impot egal a zero, puisque l'impot change avec le loyer cible.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Score et risques</h3>
+            <code>score final = min(100, score financier + score qualitatif), puis plafond DPE si necessaire</code>
+            <code>score qualitatif = DPE + demande locative + etat immeuble + travaux copropriete + liquidite revente</code>
+            <p>
+              Le score financier vaut 70 points : rendement net, cash-flow, couverture de dette, rendement brut sur cout total et
+              efficacite du cash investi. Le score qualitatif vaut 30 points : DPE, demande locative, etat de l'immeuble, gros
+              travaux et liquidite de revente.
+            </p>
+            <p>
+              Un DPE G plafonne la note a Mauvais car la location est interdite pour les baux signes, renouveles ou reconduits
+              depuis 2025. Un DPE F plafonne la note a Risque en anticipation de l'interdiction de 2028. Ces plafonds evitent
+              qu'un bon rendement masque un blocage reglementaire.
+            </p>
+          </section>
+
+          <section class="help-section">
+            <h3>Compromis assumes</h3>
+            <p>
+              Le modele ne calcule ni plus-value, ni IRR, ni revente, ni indexation future des loyers, ni inflation des charges.
+              Il ne verifie pas les loyers de marche, l'encadrement local, le plafond de regime micro ou l'eligibilite exacte d'un
+              regime fiscal. Les resultats sont donc une aide au tri et a la negociation, pas une decision d'achat automatique.
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
 
     <script src="src/app.js"></script>
   </body>

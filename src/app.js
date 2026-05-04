@@ -10,11 +10,14 @@ const defaults = {
   vacancyDays: 14,
   nonRecoverableCharges: 600,
   taxeFonciere: 800,
+  recoverableTaxeOrdures: 0,
   landlordInsurance: 120,
   maintenanceReserve: 500,
   managementFeeRate: 0,
   gliRate: 0,
   accountingCost: 300,
+  cfe: 0,
+  relocationReserve: 0,
   otherAnnualCosts: 0,
   financingMethod: "mortgage",
   downPayment: 25000,
@@ -24,8 +27,9 @@ const defaults = {
   bankFees: 1000,
   taxMode: "lmnp-real",
   marginalTaxRate: 30,
-  socialContributionsRate: 17.2,
+  socialContributionsRate: 18.6,
   depreciationDeduction: 2500,
+  manualAnnualTax: 0,
   dpeRating: "D",
   rentalDemand: "strong",
   buildingCondition: "good",
@@ -38,6 +42,9 @@ const fields = [...document.querySelectorAll("[data-field]")];
 const projectNameInput = document.querySelector("#projectName");
 const projectList = document.querySelector("#projectList");
 const projectStatus = document.querySelector("#projectStatus");
+const helpButton = document.querySelector("#helpButton");
+const helpOverlay = document.querySelector("#helpOverlay");
+const helpCloseButton = document.querySelector("#helpCloseButton");
 const projectsStorageKey = "rental-simulator-projects-v1";
 let activeProjectId = null;
 
@@ -102,6 +109,18 @@ function setStatus(message) {
   projectStatus.textContent = message;
 }
 
+function openHelpOverlay() {
+  helpOverlay.hidden = false;
+  document.body.classList.add("modal-open");
+  helpCloseButton.focus();
+}
+
+function closeHelpOverlay() {
+  helpOverlay.hidden = true;
+  document.body.classList.remove("modal-open");
+  helpButton.focus();
+}
+
 let projects = loadProjects();
 
 const fieldHelp = {
@@ -116,11 +135,14 @@ const fieldHelp = {
   vacancyDays: "Nombre de jours par an sans locataire ou sans loyer encaisse.",
   nonRecoverableCharges: "Part annuelle des charges de copropriete qui reste a la charge du bailleur.",
   taxeFonciere: "Taxe fonciere annuelle estimee pour le bien.",
+  recoverableTaxeOrdures: "Part de taxe d'enlevement des ordures menageres recuperable aupres du locataire.",
   landlordInsurance: "Assurance proprietaire non occupant annuelle.",
   maintenanceReserve: "Reserve annuelle pour reparations, entretien et petits remplacements.",
   managementFeeRate: "Pourcentage du loyer encaisse verse a une agence de gestion.",
   gliRate: "Assurance loyers impayes calculee en pourcentage des loyers encaisses.",
   accountingCost: "Cout annuel de comptabilite, notamment utile en LMNP reel.",
+  cfe: "Cotisation fonciere des entreprises ou frais fiscaux recurrents, surtout utile en location meublee.",
+  relocationReserve: "Budget annuel prudent pour diagnostics, annonces, etat des lieux ou remise en location.",
   otherAnnualCosts: "Autres couts recurrents non classes ailleurs.",
   financingMethod: "Permet de comparer un achat comptant et un achat finance par credit.",
   downPayment: "Montant de cash injecte au depart dans le projet finance.",
@@ -128,10 +150,11 @@ const fieldHelp = {
   loanDurationYears: "Duree de remboursement utilisee pour calculer la mensualite.",
   borrowerInsuranceRate: "Assurance emprunteur annuelle appliquee au capital emprunte.",
   bankFees: "Frais de dossier, courtage ou banque payes au demarrage.",
-  taxMode: "Regime fiscal indicatif pour contextualiser l'estimation simplifiee.",
+  taxMode: "Regime fiscal utilise pour estimer la base taxable.",
   marginalTaxRate: "Taux marginal d'imposition utilise dans le calcul fiscal simplifie.",
-  socialContributionsRate: "Prelevements sociaux appliques au profit taxable estime.",
-  depreciationDeduction: "Deduction annuelle simplifiee, par exemple amortissement LMNP.",
+  socialContributionsRate: "Taux de prelevements sociaux utilise en mode manuel. Les autres regimes appliquent le taux 2026 correspondant.",
+  depreciationDeduction: "Deduction annuelle simplifiee, par exemple amortissement LMNP reel. Ignoree en regime micro.",
+  manualAnnualTax: "Impot annuel saisi directement quand le regime fiscal manuel est choisi.",
   dpeRating: "Classe energie du logement, utilisee dans le score de risque.",
   rentalDemand: "Niveau de demande locative locale, utilise dans le score qualitatif.",
   buildingCondition: "Etat general de l'immeuble et risque de depenses futures.",
@@ -144,6 +167,7 @@ const metricHelp = {
   grossAnnualRent: "Loyer hors charges multiplie par 12, avant vacance et charges.",
   vacancyCost: "Loyer annuel perdu a cause des jours de vacance renseignes.",
   effectiveAnnualRent: "Loyer annuel apres deduction de la vacance locative.",
+  effectiveTenantCharges: "Charges recuperables estimees apres vacance, exclues des rendements mais incluses dans certaines bases fiscales.",
   grossYieldPrice: "Loyer annuel brut divise par le prix d'achat seul.",
   grossYieldTotalCost: "Loyer annuel brut divise par le cout total du projet.",
   annualOperatingExpenses: "Total annuel des charges proprietaire, assurances, entretien, gestion et couts recurrents.",
@@ -152,6 +176,7 @@ const metricHelp = {
   monthlyCashFlowBeforeTax: "Cash mensuel apres charges et dette, avant impot estime.",
   monthlyCashFlowAfterTax: "Cash mensuel apres charges, dette et impot estime.",
   estimatedTax: "Impot annuel simplifie calcule sur le profit taxable estime.",
+  taxableProfit: "Base taxable estimee selon le regime fiscal choisi.",
   cashInvested: "Cash immobilise au depart : apport et frais non finances, ou cout total en achat comptant.",
   loanAmount: "Montant finance par le credit selon le cout total et l'apport.",
   monthlyDebtService: "Mensualite de credit plus assurance emprunteur.",
@@ -160,19 +185,113 @@ const metricHelp = {
   breakEvenRentAfterTax: "Loyer mensuel necessaire pour atteindre un cash-flow apres impot estime egal a zero.",
 };
 
+const taxModeConfigs = {
+  "lmnp-real": {
+    label: "LMNP reel simplifie",
+    socialContributionsRate: 18.6,
+  },
+  "micro-bic": {
+    label: "Micro-BIC",
+    socialContributionsRate: 18.6,
+    abatementRate: 0.5,
+    minimumAbatement: 305,
+  },
+  "micro-foncier": {
+    label: "Micro-foncier",
+    socialContributionsRate: 17.2,
+    abatementRate: 0.3,
+    minimumAbatement: 0,
+  },
+  manual: {
+    label: "Estimation manuelle",
+    socialContributionsRate: null,
+  },
+};
+
+function getTaxModeConfig(values) {
+  return taxModeConfigs[values.taxMode] || taxModeConfigs["lmnp-real"];
+}
+
+function getAppliedSocialContributionsRate(values) {
+  const config = getTaxModeConfig(values);
+  return config.socialContributionsRate ?? values.socialContributionsRate;
+}
+
+function applyAbatement(receipts, abatementRate, minimumAbatement = 0) {
+  const abatement = Math.min(receipts, Math.max(receipts * abatementRate, minimumAbatement));
+  return Math.max(0, receipts - abatement);
+}
+
+function getRecoverableTaxeOrdures(values) {
+  return Math.min(Math.max(values.recoverableTaxeOrdures || 0, 0), Math.max(values.taxeFonciere || 0, 0));
+}
+
+function getNetTaxeFonciere(values) {
+  return Math.max(0, values.taxeFonciere - getRecoverableTaxeOrdures(values));
+}
+
 function getFixedOperatingExpenses(values) {
   return (
     values.nonRecoverableCharges +
-    values.taxeFonciere +
+    getNetTaxeFonciere(values) +
     values.landlordInsurance +
     values.maintenanceReserve +
     values.accountingCost +
+    values.cfe +
+    values.relocationReserve +
     values.otherAnnualCosts
   );
 }
 
 function getVariableExpenseRate(values) {
   return rate(values.managementFeeRate) + rate(values.gliRate);
+}
+
+function calculateTax(values, context) {
+  const config = getTaxModeConfig(values);
+  const appliedSocialContributionsRate = getAppliedSocialContributionsRate(values);
+  const totalTaxRate = rate(values.marginalTaxRate) + rate(appliedSocialContributionsRate);
+  let taxableProfit = 0;
+  let taxableReceipts = context.effectiveAnnualRent;
+  let formulaLabel = "";
+
+  if (values.taxMode === "micro-bic") {
+    taxableReceipts = context.effectiveAnnualRent + context.effectiveTenantCharges;
+    taxableProfit = applyAbatement(taxableReceipts, config.abatementRate, config.minimumAbatement);
+    formulaLabel = "recettes charges comprises - abattement Micro-BIC 50 %";
+  } else if (values.taxMode === "micro-foncier") {
+    taxableReceipts = context.effectiveAnnualRent;
+    taxableProfit = applyAbatement(taxableReceipts, config.abatementRate, config.minimumAbatement);
+    formulaLabel = "loyers hors charges - abattement micro-foncier 30 %";
+  } else if (values.taxMode === "manual") {
+    taxableProfit = totalTaxRate > 0 ? Math.max(0, values.manualAnnualTax) / totalTaxRate : 0;
+    return {
+      estimatedTax: Math.max(0, values.manualAnnualTax),
+      taxableProfit,
+      taxableReceipts,
+      totalTaxRate,
+      appliedSocialContributionsRate,
+      taxModeLabel: config.label,
+      formulaLabel: "impot annuel saisi manuellement",
+    };
+  } else {
+    taxableReceipts = context.effectiveAnnualRent + context.effectiveTenantCharges;
+    taxableProfit = Math.max(
+      0,
+      context.netOperatingIncome - context.annualInterest - values.depreciationDeduction,
+    );
+    formulaLabel = "max(0, NOI - interets annuels - amortissement/deduction)";
+  }
+
+  return {
+    estimatedTax: taxableProfit * totalTaxRate,
+    taxableProfit,
+    taxableReceipts,
+    totalTaxRate,
+    appliedSocialContributionsRate,
+    taxModeLabel: config.label,
+    formulaLabel,
+  };
 }
 
 function findBreakEvenRentBeforeTax(values, vacancyRate, annualDebtService) {
@@ -185,14 +304,19 @@ function findBreakEvenRentAfterTax(values, vacancyRate, annualDebtService, annua
   const fixedOperatingExpenses =
     getFixedOperatingExpenses(values);
   const variableExpenseRate = getVariableExpenseRate(values);
-  const taxRate = rate(values.marginalTaxRate) + rate(values.socialContributionsRate);
 
   const annualCashFlowForRent = (monthlyRent) => {
     const effectiveRent = monthlyRent * 12 * (1 - vacancyRate);
+    const effectiveTenantCharges = values.tenantCharges * 12 * (1 - vacancyRate);
     const operatingExpenses = fixedOperatingExpenses + effectiveRent * variableExpenseRate;
     const noi = effectiveRent - operatingExpenses;
-    const taxableProfit = Math.max(0, noi - annualInterest - values.depreciationDeduction);
-    return noi - annualDebtService - taxableProfit * taxRate;
+    const tax = calculateTax(values, {
+      effectiveAnnualRent: effectiveRent,
+      effectiveTenantCharges,
+      netOperatingIncome: noi,
+      annualInterest,
+    });
+    return noi - annualDebtService - tax.estimatedTax;
   };
 
   if (annualCashFlowForRent(0) >= 0) return 0;
@@ -430,6 +554,12 @@ function ratingFromScore(score) {
   return ["Mauvais", "Probablement a eviter"];
 }
 
+function applyRegulatoryScoreCap(values, score) {
+  if (values.dpeRating === "G") return Math.min(score, 39);
+  if (values.dpeRating === "F") return Math.min(score, 54);
+  return score;
+}
+
 function calculate(values) {
   const notaryFees = values.purchasePrice * rate(values.notaryRate);
   const totalProjectCost =
@@ -443,16 +573,20 @@ function calculate(values) {
   const vacancyRate = vacancyRateFromDays(values.vacancyDays);
   const vacancyCost = grossAnnualRent * vacancyRate;
   const effectiveAnnualRent = grossAnnualRent - vacancyCost;
+  const effectiveTenantCharges = values.tenantCharges * 12 * (1 - vacancyRate);
   const managementFee = effectiveAnnualRent * rate(values.managementFeeRate);
   const unpaidRentInsurance = effectiveAnnualRent * rate(values.gliRate);
+  const netTaxeFonciere = getNetTaxeFonciere(values);
   const annualOperatingExpenses =
     values.nonRecoverableCharges +
-    values.taxeFonciere +
+    netTaxeFonciere +
     values.landlordInsurance +
     values.maintenanceReserve +
     managementFee +
     unpaidRentInsurance +
     values.accountingCost +
+    values.cfe +
+    values.relocationReserve +
     values.otherAnnualCosts;
   const netOperatingIncome = effectiveAnnualRent - annualOperatingExpenses;
   const cashPurchase = values.financingMethod === "cash";
@@ -463,11 +597,13 @@ function calculate(values) {
   const monthlyDebtService = loanPayment + borrowerInsurance;
   const annualDebtService = monthlyDebtService * 12;
   const annualInterest = loanAmount * rate(values.interestRate);
-  const taxableProfit = Math.max(
-    0,
-    netOperatingIncome - annualInterest - values.depreciationDeduction,
-  );
-  const estimatedTax = taxableProfit * (rate(values.marginalTaxRate) + rate(values.socialContributionsRate));
+  const tax = calculateTax(values, {
+    effectiveAnnualRent,
+    effectiveTenantCharges,
+    netOperatingIncome,
+    annualInterest,
+  });
+  const estimatedTax = tax.estimatedTax;
   const annualCashFlowBeforeTax = netOperatingIncome - annualDebtService;
   const annualCashFlowAfterTax = annualCashFlowBeforeTax - estimatedTax;
   const breakEvenRentBeforeTax = findBreakEvenRentBeforeTax(values, vacancyRate, annualDebtService);
@@ -484,6 +620,7 @@ function calculate(values) {
     grossAnnualRent,
     vacancyCost,
     effectiveAnnualRent,
+    effectiveTenantCharges,
     grossYieldPrice: grossAnnualRent / values.purchasePrice,
     grossYieldTotalCost: grossAnnualRent / totalProjectCost,
     annualOperatingExpenses,
@@ -498,26 +635,52 @@ function calculate(values) {
     breakEvenRentBeforeTax,
     breakEvenRentAfterTax,
     estimatedTax,
+    taxableProfit: tax.taxableProfit,
+    taxableReceipts: tax.taxableReceipts,
+    totalTaxRate: tax.totalTaxRate,
+    appliedSocialContributionsRate: tax.appliedSocialContributionsRate,
+    taxModeLabel: tax.taxModeLabel,
+    taxFormulaLabel: tax.formulaLabel,
     loanAmount,
     monthlyDebtService,
     effectiveDownPayment,
+    netTaxeFonciere,
   };
 
   const financialScore = scoreFinancial(metrics);
   const riskBreakdown = scoreRiskBreakdown(values);
-  const score = Math.min(100, financialScore + riskBreakdown.total);
+  const rawScore = Math.min(100, financialScore + riskBreakdown.total);
+  const score = applyRegulatoryScoreCap(values, rawScore);
   const [rating, label] = ratingFromScore(score);
-  return { metrics, score, financialScore, riskBreakdown, rating, label };
+  return { metrics, score, rawScore, financialScore, riskBreakdown, rating, label };
 }
 
 function warnings(values, metrics) {
   const list = [];
-  if (["F", "G"].includes(values.dpeRating)) list.push("DPE F ou G : risque reglementaire et travaux a anticiper.");
+  if (values.dpeRating === "G") {
+    list.push("DPE G : location interdite depuis le 1er janvier 2025 pour les baux signes, renouveles ou reconduits.");
+  } else if (values.dpeRating === "F") {
+    list.push("DPE F : interdiction de location a partir du 1er janvier 2028, travaux a budgeter.");
+  } else if (values.dpeRating === "E") {
+    list.push("DPE E : interdiction de location prevue a partir du 1er janvier 2034, risque long terme.");
+  }
   if (metrics.monthlyCashFlowAfterTax < -300) list.push("Cash-flow apres impot inferieur a -300 EUR par mois.");
   if (metrics.netYieldBeforeTax < 0.03) list.push("Rendement net avant impot inferieur a 3 %.");
   if (values.vacancyDays < 8) list.push("Vacance locative inferieure a 8 jours par an : hypothese potentiellement optimiste.");
   if (values.maintenanceReserve === 0) list.push("Reserve d'entretien nulle : risque de sous-estimer les couts.");
   if (values.taxeFonciere === 0) list.push("Taxe fonciere absente : verifier l'hypothese.");
+  if (values.taxeFonciere > 0 && values.recoverableTaxeOrdures === 0) {
+    list.push("TEOM recuperable non renseignee : si elle est incluse dans la taxe fonciere, les charges proprietaire peuvent etre surestimees.");
+  }
+  if (values.recoverableTaxeOrdures > values.taxeFonciere) {
+    list.push("TEOM recuperable superieure a la taxe fonciere : le calcul la plafonne au montant de taxe fonciere.");
+  }
+  if (["lmnp-real", "micro-bic"].includes(values.taxMode) && values.cfe === 0) {
+    list.push("CFE non renseignee en location meublee : verifier si une cotisation annuelle s'applique.");
+  }
+  if (values.taxMode === "manual" && values.manualAnnualTax === 0) {
+    list.push("Fiscalite manuelle a 0 EUR : verifier que l'impot annuel attendu est bien nul.");
+  }
   if (values.purchasePrice > metrics.grossAnnualRent * 20) list.push("Prix superieur a 20 annees de loyer.");
   if (values.financingMethod === "mortgage" && values.downPayment > metrics.totalProjectCost) {
     list.push("Apport superieur au cout du projet : le calcul le plafonne au cout total hors frais bancaires.");
@@ -537,12 +700,14 @@ function renderMetrics(metrics) {
     ["grossAnnualRent", "Loyer annuel brut", money(metrics.grossAnnualRent)],
     ["vacancyCost", "Cout de la vacance", money(metrics.vacancyCost)],
     ["effectiveAnnualRent", "Loyer annuel effectif", money(metrics.effectiveAnnualRent)],
+    ["effectiveTenantCharges", "Charges recuperables effectives", money(metrics.effectiveTenantCharges)],
     ["grossYieldPrice", "Rendement brut sur prix", percent(metrics.grossYieldPrice)],
     ["grossYieldTotalCost", "Rendement brut sur cout total", percent(metrics.grossYieldTotalCost)],
     ["annualOperatingExpenses", "Charges annuelles", money(metrics.annualOperatingExpenses)],
     ["netOperatingIncome", "Revenu net d'exploitation", `${money(metrics.netOperatingIncome)} / an`],
     ["monthlyCashFlowBeforeTax", "Cash-flow avant impot", `${money(metrics.monthlyCashFlowBeforeTax)} / mois`],
     ["monthlyCashFlowAfterTax", "Cash-flow apres impot", `${money(metrics.monthlyCashFlowAfterTax)} / mois`],
+    ["taxableProfit", `Base taxable (${metrics.taxModeLabel})`, money(metrics.taxableProfit)],
     ["estimatedTax", "Impot annuel estime", money(metrics.estimatedTax)],
     ["cashInvested", "Cash investi", money(metrics.cashInvested)],
     ["loanAmount", "Montant emprunte", money(metrics.loanAmount)],
@@ -593,7 +758,9 @@ function renderScoreBreakdown(result) {
   document.querySelector("#financialScoreValue").textContent = `${result.financialScore}/70`;
   document.querySelector("#riskScoreValue").textContent = `${result.riskBreakdown.total}/${result.riskBreakdown.max}`;
   document.querySelector("#riskScoreExplanation").textContent =
-    `La note finale additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs. Plus cette partie est haute, plus le risque est favorable.`;
+    result.score < result.rawScore
+      ? `La note brute additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs, puis elle est plafonnee a ${result.score} a cause du risque reglementaire DPE.`
+      : `La note finale additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs. Plus cette partie est haute, plus le risque est favorable.`;
   document.querySelector("#riskScoreRows").innerHTML = result.riskBreakdown.items
     .map(
       (item) => `<div>
@@ -611,8 +778,7 @@ function renderEquations(values, metrics) {
   const notaryFees = values.purchasePrice * rate(values.notaryRate);
   const annualDebtService = metrics.monthlyDebtService * 12;
   const annualInterest = metrics.loanAmount * rate(values.interestRate);
-  const taxableProfit = Math.max(0, metrics.netOperatingIncome - annualInterest - values.depreciationDeduction);
-  const taxRate = rate(values.marginalTaxRate) + rate(values.socialContributionsRate);
+  const recoverableTaxeOrdures = getRecoverableTaxeOrdures(values);
 
   const equations = [
     {
@@ -627,8 +793,9 @@ function renderEquations(values, metrics) {
     },
     {
       title: "Charges annuelles",
-      formula: "charges fixes + loyer effectif x (gestion + GLI)",
+      formula: "charges fixes nettes de TEOM recuperable + loyer effectif x (gestion + GLI)",
       current: `${money(fixedOperatingExpenses)} + ${money(metrics.effectiveAnnualRent)} x ${percent(variableExpenseRate)} = ${money(metrics.annualOperatingExpenses)}`,
+      note: recoverableTaxeOrdures > 0 ? `TEOM recuperable deduite de la taxe fonciere : ${money(recoverableTaxeOrdures)}.` : "",
     },
     {
       title: "Revenu net d'exploitation",
@@ -661,9 +828,15 @@ function renderEquations(values, metrics) {
     },
     {
       title: "Impot estime",
-      formula: "max(0, NOI - interets annuels - deduction) x (TMI + prelevements sociaux)",
-      current: `max(0, ${money(metrics.netOperatingIncome)} - ${money(annualInterest)} - ${money(values.depreciationDeduction)}) x ${percent(taxRate)} = ${money(metrics.estimatedTax)}`,
-      note: `Profit taxable estime : ${money(taxableProfit)}.`,
+      formula: `${metrics.taxModeLabel} : ${metrics.taxFormulaLabel}`,
+      current:
+        values.taxMode === "manual"
+          ? `${money(values.manualAnnualTax)} saisi manuellement = ${money(metrics.estimatedTax)}`
+          : `${money(metrics.taxableProfit)} x (TMI ${percent(rate(values.marginalTaxRate))} + PS ${percent(rate(metrics.appliedSocialContributionsRate))}) = ${money(metrics.estimatedTax)}`,
+      note:
+        values.taxMode === "lmnp-real"
+          ? `Base taxable estimee : ${money(metrics.netOperatingIncome)} - ${money(annualInterest)} - ${money(values.depreciationDeduction)} = ${money(metrics.taxableProfit)}. Les recettes charges comprises estimees sont ${money(metrics.taxableReceipts)}.`
+          : `Recettes fiscales estimees : ${money(metrics.taxableReceipts)}. Base taxable estimee : ${money(metrics.taxableProfit)}.`,
     },
     {
       title: "Cash-flow apres impot",
@@ -783,6 +956,14 @@ function handleFormChange() {
 
 form.addEventListener("input", handleFormChange);
 form.addEventListener("change", handleFormChange);
+helpButton.addEventListener("click", openHelpOverlay);
+helpCloseButton.addEventListener("click", closeHelpOverlay);
+helpOverlay.addEventListener("click", (event) => {
+  if (event.target === helpOverlay) closeHelpOverlay();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !helpOverlay.hidden) closeHelpOverlay();
+});
 document.querySelector("#resetButton").addEventListener("click", resetForm);
 document.querySelector("#copyButton").addEventListener("click", copySummary);
 document.querySelector("#saveProjectButton").addEventListener("click", saveCurrentProject);
