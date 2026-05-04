@@ -9,6 +9,7 @@ default:
 # Run lightweight project checks.
 check:
     node --check src/app.js
+    node --check sw.js
 
 # Serve the static app locally.
 serve:

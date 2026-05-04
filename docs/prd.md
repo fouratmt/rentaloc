@@ -1,10 +1,10 @@
-PRD — One-Page Rental Project Simulator
+PRD — RentaLoc
 
 1. Product summary
 
-Build a one-page web simulator that helps a user evaluate whether a rental real-estate project is financially attractive.
+Build RentaLoc, a one-page web simulator that helps a user evaluate whether a rental real-estate project in France is financially attractive.
 
-The simulator should take key property, financing, rent, expense, tax, and risk assumptions as inputs, then calculate gross yield, net yield, cash flow, return on cash invested, debt coverage, break-even rent, and an overall project rating.
+RentaLoc should take key property, financing, rent, expense, tax, and risk assumptions as inputs, then calculate gross yield, net yield, cash flow, return on cash invested, debt coverage, break-even rent, and an overall project rating.
 
 The goal is not to replace a professional accountant or mortgage broker, but to give a clear first-pass answer: “Is this rental project worth deeper analysis?”
 
@@ -65,19 +65,20 @@ A single-page responsive web app with:
 * Sensitivity mini-section.
 * Recommendation/rating.
 * Ability to reset inputs.
-* Optional ability to copy/share results as text.
+* Ability to copy/share results as text.
+* Ability to save multiple simulations locally in the browser.
+* Installable PWA metadata and offline app shell.
 
 Out of scope for V1
 
 * User accounts.
-* Saving multiple simulations.
 * Bank API integrations.
 * Automatic property listing import.
 * Real-time mortgage rate API.
 * Automatic tax filing advice.
 * Legal document generation.
 * Exact tax optimization.
-* Multi-property portfolio tracking.
+* Server-side portfolio sync or user-account-backed tracking.
 
 6. Page structure
 
@@ -553,16 +554,30 @@ Copied text should include:
 * Purchase price.
 * Total project cost.
 * Monthly rent.
+* Vacancy days.
 * Gross yield.
 * Net yield before tax.
 * Monthly cash flow after tax.
+* Break-even rent after tax.
 * Cash invested.
 * Final rating.
 * Main warnings.
 
 Example:
 
-“Rental simulation: €120,000 purchase, €137,000 total project cost, €650 rent, 5.7% gross yield on total cost, 3.8% net yield before tax, -€246/month cash flow after tax, rating: Risky.”
+```
+Résumé RentaLoc du projet locatif
+Prix d'achat : 120 000 €
+Coût total : 137 000 €
+Loyer mensuel : 650 €
+Vacance locative : 14 jours/an
+Rendement brut : 5,7 %
+Rendement net avant impôt : 3,8 %
+Cash-flow après impôt : -246 € / mois
+Loyer d'équilibre cash-flow 0 : 910 € / mois
+Cash investi : 26 000 €
+Note finale : Risque
+```
 
 15. Non-functional requirements
 
@@ -573,10 +588,12 @@ Example:
 * Must be responsive for mobile, tablet, and desktop.
 * Accessibility: labels, keyboard navigation, sufficient contrast.
 * SEO-friendly static page title and meta description.
+* Public app name, PWA manifest name, and copied summary should use RentaLoc.
+* Input labels should make the expected value explicit: monthly, annual, initial total, estimated amount, or percentage basis.
 
 16. Data privacy
 
-V1 should not send calculation data to a server.
+V1 should not send calculation data to a server. Saved simulations are stored only in browser local storage.
 
 If analytics are used:
 

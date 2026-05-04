@@ -45,8 +45,16 @@ const projectStatus = document.querySelector("#projectStatus");
 const helpButton = document.querySelector("#helpButton");
 const helpOverlay = document.querySelector("#helpOverlay");
 const helpCloseButton = document.querySelector("#helpCloseButton");
-const projectsStorageKey = "rental-simulator-projects-v1";
+const projectsStorageKey = "rentaloc-projects-v1";
 let activeProjectId = null;
+
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      // The app still works as a plain static page if service workers are unavailable.
+    });
+  });
+}
 
 const formatter = new Intl.NumberFormat("fr-FR", {
   style: "currency",
@@ -124,70 +132,70 @@ function closeHelpOverlay() {
 let projects = loadProjects();
 
 const fieldHelp = {
-  purchasePrice: "Prix affiche hors frais de notaire et hors couts annexes.",
-  notaryRate: "Pourcentage applique au prix d'achat pour estimer les frais d'acquisition.",
-  agencyFees: "Frais d'agence a ajouter si le prix annonce ne les inclut pas.",
-  renovationWorks: "Budget initial de travaux avant mise en location.",
-  furnitureCost: "Budget de mobilier et equipements, surtout utile en location meublee.",
-  otherUpfrontCosts: "Frais initiaux divers : courtier, garantie, diagnostics ou dossiers.",
-  monthlyRent: "Loyer mensuel hors charges utilise pour calculer les rendements.",
-  tenantCharges: "Charges refacturees au locataire, affichees mais exclues du rendement.",
-  vacancyDays: "Nombre de jours par an sans locataire ou sans loyer encaisse.",
-  nonRecoverableCharges: "Part annuelle des charges de copropriete qui reste a la charge du bailleur.",
-  taxeFonciere: "Taxe fonciere annuelle estimee pour le bien.",
-  recoverableTaxeOrdures: "Part de taxe d'enlevement des ordures menageres recuperable aupres du locataire.",
-  landlordInsurance: "Assurance proprietaire non occupant annuelle.",
-  maintenanceReserve: "Reserve annuelle pour reparations, entretien et petits remplacements.",
-  managementFeeRate: "Pourcentage du loyer encaisse verse a une agence de gestion.",
-  gliRate: "Assurance loyers impayes calculee en pourcentage des loyers encaisses.",
-  accountingCost: "Cout annuel de comptabilite, notamment utile en LMNP reel.",
-  cfe: "Cotisation fonciere des entreprises ou frais fiscaux recurrents, surtout utile en location meublee.",
-  relocationReserve: "Budget annuel prudent pour diagnostics, annonces, etat des lieux ou remise en location.",
-  otherAnnualCosts: "Autres couts recurrents non classes ailleurs.",
-  financingMethod: "Permet de comparer un achat comptant et un achat finance par credit.",
-  downPayment: "Montant de cash injecte au depart dans le projet finance.",
-  interestRate: "Taux nominal annuel du credit immobilier.",
-  loanDurationYears: "Duree de remboursement utilisee pour calculer la mensualite.",
-  borrowerInsuranceRate: "Assurance emprunteur annuelle appliquee au capital emprunte.",
-  bankFees: "Frais de dossier, courtage ou banque payes au demarrage.",
-  taxMode: "Regime fiscal utilise pour estimer la base taxable.",
-  marginalTaxRate: "Taux marginal d'imposition utilise dans le calcul fiscal simplifie.",
-  socialContributionsRate: "Taux de prelevements sociaux utilise en mode manuel. Les autres regimes appliquent le taux 2026 correspondant.",
-  depreciationDeduction: "Deduction annuelle simplifiee, par exemple amortissement LMNP reel. Ignoree en regime micro.",
-  manualAnnualTax: "Impot annuel saisi directement quand le regime fiscal manuel est choisi.",
-  dpeRating: "Classe energie du logement, utilisee dans le score de risque.",
-  rentalDemand: "Niveau de demande locative locale, utilise dans le score qualitatif.",
-  buildingCondition: "Etat general de l'immeuble et risque de depenses futures.",
-  majorWorksRisk: "Probabilite de gros travaux de copropriete a financer.",
-  resaleLiquidity: "Facilite probable de revente du bien.",
+  purchasePrice: "Montant total du prix affiché, hors frais de notaire et hors coûts annexes.",
+  notaryRate: "Taux estimé appliqué au prix d'achat pour calculer les frais d'acquisition.",
+  agencyFees: "Montant total des frais d'agence à ajouter si le prix annoncé ne les inclut pas.",
+  renovationWorks: "Budget total des travaux initiaux avant mise en location.",
+  furnitureCost: "Budget total de mobilier et équipements, surtout utile en location meublée.",
+  otherUpfrontCosts: "Montant total des frais initiaux divers : courtier, garantie, diagnostics ou dossiers.",
+  monthlyRent: "Loyer mensuel hors charges utilisé pour calculer les rendements.",
+  tenantCharges: "Montant mensuel des charges refacturées au locataire, affichées mais exclues du rendement.",
+  vacancyDays: "Nombre estimé de jours par an sans locataire ou sans loyer encaissé.",
+  nonRecoverableCharges: "Montant annuel des charges de copropriété qui reste à la charge du bailleur.",
+  taxeFonciere: "Taxe foncière annuelle estimée pour le bien.",
+  recoverableTaxeOrdures: "Montant annuel de taxe d'enlèvement des ordures ménagères récupérable auprès du locataire.",
+  landlordInsurance: "Assurance propriétaire non occupant annuelle.",
+  maintenanceReserve: "Réserve annuelle pour réparations, entretien et petits remplacements.",
+  managementFeeRate: "Pourcentage des loyers encaissés versé à une agence de gestion.",
+  gliRate: "Assurance loyers impayés calculée en pourcentage des loyers encaissés.",
+  accountingCost: "Coût annuel de comptabilité, notamment utile en LMNP réel.",
+  cfe: "Cotisation foncière des entreprises ou frais fiscaux récurrents, surtout utile en location meublée.",
+  relocationReserve: "Budget annuel prudent pour diagnostics, annonces, état des lieux ou remise en location.",
+  otherAnnualCosts: "Autres coûts récurrents non classés ailleurs.",
+  financingMethod: "Permet de comparer un achat comptant et un achat financé par crédit.",
+  downPayment: "Montant initial de cash injecté au départ dans le projet financé.",
+  interestRate: "Taux nominal annuel du crédit immobilier.",
+  loanDurationYears: "Durée de remboursement utilisée pour calculer la mensualité.",
+  borrowerInsuranceRate: "Taux annuel d'assurance emprunteur appliqué au capital emprunté.",
+  bankFees: "Montant initial des frais de dossier, courtage ou banque payés au démarrage.",
+  taxMode: "Régime fiscal utilisé pour estimer la base taxable.",
+  marginalTaxRate: "Taux marginal d'imposition utilisé dans le calcul fiscal simplifié.",
+  socialContributionsRate: "Taux de prélèvements sociaux utilisé en mode manuel. Les autres régimes appliquent le taux 2026 correspondant.",
+  depreciationDeduction: "Montant annuel estimé de déduction, par exemple amortissement LMNP réel. Ignoré en régime micro.",
+  manualAnnualTax: "Montant annuel d'impôt saisi directement quand le régime fiscal manuel est choisi.",
+  dpeRating: "Classe énergie du logement, utilisée dans le score de risque.",
+  rentalDemand: "Niveau de demande locative locale, utilisé dans le score qualitatif.",
+  buildingCondition: "État général de l'immeuble et risque de dépenses futures.",
+  majorWorksRisk: "Probabilité de gros travaux de copropriété à financer.",
+  resaleLiquidity: "Facilité probable de revente du bien.",
 };
 
 const metricHelp = {
   totalProjectCost: "Somme du prix, des frais d'acquisition, travaux, mobilier et autres frais initiaux.",
-  grossAnnualRent: "Loyer hors charges multiplie par 12, avant vacance et charges.",
-  vacancyCost: "Loyer annuel perdu a cause des jours de vacance renseignes.",
-  effectiveAnnualRent: "Loyer annuel apres deduction de la vacance locative.",
-  effectiveTenantCharges: "Charges recuperables estimees apres vacance, exclues des rendements mais incluses dans certaines bases fiscales.",
-  grossYieldPrice: "Loyer annuel brut divise par le prix d'achat seul.",
-  grossYieldTotalCost: "Loyer annuel brut divise par le cout total du projet.",
-  annualOperatingExpenses: "Total annuel des charges proprietaire, assurances, entretien, gestion et couts recurrents.",
-  netOperatingIncome: "Loyer effectif moins charges d'exploitation, avant credit et impot.",
-  netYieldBeforeTax: "Revenu net d'exploitation divise par le cout total du projet.",
-  monthlyCashFlowBeforeTax: "Cash mensuel apres charges et dette, avant impot estime.",
-  monthlyCashFlowAfterTax: "Cash mensuel apres charges, dette et impot estime.",
-  estimatedTax: "Impot annuel simplifie calcule sur le profit taxable estime.",
-  taxableProfit: "Base taxable estimee selon le regime fiscal choisi.",
-  cashInvested: "Cash immobilise au depart : apport et frais non finances, ou cout total en achat comptant.",
-  loanAmount: "Montant finance par le credit selon le cout total et l'apport.",
-  monthlyDebtService: "Mensualite de credit plus assurance emprunteur.",
+  grossAnnualRent: "Loyer hors charges multiplié par 12, avant vacance et charges.",
+  vacancyCost: "Loyer annuel perdu à cause des jours de vacance renseignés.",
+  effectiveAnnualRent: "Loyer annuel après déduction de la vacance locative.",
+  effectiveTenantCharges: "Charges récupérables estimées après vacance, exclues des rendements mais incluses dans certaines bases fiscales.",
+  grossYieldPrice: "Loyer annuel brut divisé par le prix d'achat seul.",
+  grossYieldTotalCost: "Loyer annuel brut divisé par le coût total du projet.",
+  annualOperatingExpenses: "Total annuel des charges propriétaire, assurances, entretien, gestion et coûts récurrents.",
+  netOperatingIncome: "Loyer effectif moins charges d'exploitation, avant crédit et impôt.",
+  netYieldBeforeTax: "Revenu net d'exploitation divisé par le coût total du projet.",
+  monthlyCashFlowBeforeTax: "Cash mensuel après charges et dette, avant impôt estimé.",
+  monthlyCashFlowAfterTax: "Cash mensuel après charges, dette et impôt estimé.",
+  estimatedTax: "Impôt annuel simplifié calculé sur le profit taxable estimé.",
+  taxableProfit: "Base taxable estimée selon le régime fiscal choisi.",
+  cashInvested: "Cash immobilisé au départ : apport et frais non financés, ou coût total en achat comptant.",
+  loanAmount: "Montant financé par le crédit selon le coût total et l'apport.",
+  monthlyDebtService: "Mensualité de crédit plus assurance emprunteur.",
   debtCoverageRatio: "Rapport entre revenu net d'exploitation et dette annuelle. Au-dessus de 1, le bien couvre la dette.",
-  breakEvenRentBeforeTax: "Loyer mensuel necessaire pour atteindre un cash-flow avant impot egal a zero.",
-  breakEvenRentAfterTax: "Loyer mensuel necessaire pour atteindre un cash-flow apres impot estime egal a zero.",
+  breakEvenRentBeforeTax: "Loyer mensuel nécessaire pour atteindre un cash-flow avant impôt égal à zéro.",
+  breakEvenRentAfterTax: "Loyer mensuel nécessaire pour atteindre un cash-flow après impôt estimé égal à zéro.",
 };
 
 const taxModeConfigs = {
   "lmnp-real": {
-    label: "LMNP reel simplifie",
+    label: "LMNP réel simplifié",
     socialContributionsRate: 18.6,
   },
   "micro-bic": {
@@ -272,7 +280,7 @@ function calculateTax(values, context) {
       totalTaxRate,
       appliedSocialContributionsRate,
       taxModeLabel: config.label,
-      formulaLabel: "impot annuel saisi manuellement",
+      formulaLabel: "impôt annuel saisi manuellement",
     };
   } else {
     taxableReceipts = context.effectiveAnnualRent + context.effectiveTenantCharges;
@@ -280,7 +288,7 @@ function calculateTax(values, context) {
       0,
       context.netOperatingIncome - context.annualInterest - values.depreciationDeduction,
     );
-    formulaLabel = "max(0, NOI - interets annuels - amortissement/deduction)";
+    formulaLabel = "max(0, NOI - intérêts annuels - amortissement/déduction)";
   }
 
   return {
@@ -370,7 +378,7 @@ function saveCurrentProject() {
       values,
       updatedAt: now,
     };
-    setStatus("Simulation mise a jour.");
+    setStatus("Simulation mise à jour.");
   } else {
     const project = {
       id: createId(),
@@ -381,7 +389,7 @@ function saveCurrentProject() {
     };
     projects = [project, ...projects];
     activeProjectId = project.id;
-    setStatus("Simulation enregistree.");
+    setStatus("Simulation enregistrée.");
   }
 
   projectNameInput.value = name;
@@ -395,7 +403,7 @@ function startNewProject() {
   setFormValues(defaults);
   render();
   renderProjectList();
-  setStatus("Nouvelle simulation prete.");
+  setStatus("Nouvelle simulation prête.");
 }
 
 function loadProject(projectId) {
@@ -406,7 +414,7 @@ function loadProject(projectId) {
   setFormValues(project.values);
   render();
   renderProjectList();
-  setStatus(`Simulation chargee : ${project.name}.`);
+  setStatus(`Simulation chargée : ${project.name}.`);
 }
 
 function deleteProject(projectId) {
@@ -421,12 +429,12 @@ function deleteProject(projectId) {
   }
   persistProjects();
   renderProjectList();
-  setStatus("Simulation supprimee.");
+  setStatus("Simulation supprimée.");
 }
 
 function renderProjectList() {
   if (projects.length === 0) {
-    projectList.innerHTML = '<p class="empty-projects">Aucune simulation sauvegardee pour le moment.</p>';
+    projectList.innerHTML = '<p class="empty-projects">Aucune simulation sauvegardée pour le moment.</p>';
     return;
   }
 
@@ -475,21 +483,21 @@ const riskScoreDefinitions = [
   },
   {
     key: "buildingCondition",
-    label: "Etat de l'immeuble",
+    label: "État de l'immeuble",
     max: 6,
     scores: { good: 6, average: 3, risky: 0 },
     labels: { good: "Bon", average: "Moyen", risky: "Risque" },
   },
   {
     key: "majorWorksRisk",
-    label: "Travaux de copropriete",
+    label: "Travaux de copropriété",
     max: 4,
     scores: { no: 4, uncertain: 2, yes: 0 },
     labels: { no: "Non", uncertain: "Incertain", yes: "Oui" },
   },
   {
     key: "resaleLiquidity",
-    label: "Liquidite revente",
+    label: "Liquidité revente",
     max: 4,
     scores: { easy: 4, normal: 2, hard: 0 },
     labels: { easy: "Facile", normal: "Normale", hard: "Difficile" },
@@ -529,7 +537,7 @@ function scoreRiskBreakdown(values) {
     return {
       key: definition.key,
       label: definition.label,
-      valueLabel: definition.labels[value] ?? "Non renseigne",
+      valueLabel: definition.labels[value] ?? "Non renseigné",
       points,
       max: definition.max,
     };
@@ -548,10 +556,10 @@ function scoreRisk(values) {
 
 function ratingFromScore(score) {
   if (score >= 85) return ["Excellent", "Candidat solide"];
-  if (score >= 70) return ["Bon", "A analyser plus en detail"];
+  if (score >= 70) return ["Bon", "À analyser plus en détail"];
   if (score >= 55) return ["Moyen", "Avancer avec prudence"];
-  if (score >= 40) return ["Risque", "Marge de securite faible"];
-  return ["Mauvais", "Probablement a eviter"];
+  if (score >= 40) return ["Risque", "Marge de sécurité faible"];
+  return ["Mauvais", "Probablement à éviter"];
 }
 
 function applyRegulatoryScoreCap(values, score) {
@@ -658,32 +666,32 @@ function calculate(values) {
 function warnings(values, metrics) {
   const list = [];
   if (values.dpeRating === "G") {
-    list.push("DPE G : location interdite depuis le 1er janvier 2025 pour les baux signes, renouveles ou reconduits.");
+    list.push("DPE G : location interdite depuis le 1er janvier 2025 pour les baux signés, renouvelés ou reconduits.");
   } else if (values.dpeRating === "F") {
-    list.push("DPE F : interdiction de location a partir du 1er janvier 2028, travaux a budgeter.");
+    list.push("DPE F : interdiction de location à partir du 1er janvier 2028, travaux à budgéter.");
   } else if (values.dpeRating === "E") {
-    list.push("DPE E : interdiction de location prevue a partir du 1er janvier 2034, risque long terme.");
+    list.push("DPE E : interdiction de location prévue à partir du 1er janvier 2034, risque long terme.");
   }
-  if (metrics.monthlyCashFlowAfterTax < -300) list.push("Cash-flow apres impot inferieur a -300 EUR par mois.");
-  if (metrics.netYieldBeforeTax < 0.03) list.push("Rendement net avant impot inferieur a 3 %.");
-  if (values.vacancyDays < 8) list.push("Vacance locative inferieure a 8 jours par an : hypothese potentiellement optimiste.");
-  if (values.maintenanceReserve === 0) list.push("Reserve d'entretien nulle : risque de sous-estimer les couts.");
-  if (values.taxeFonciere === 0) list.push("Taxe fonciere absente : verifier l'hypothese.");
+  if (metrics.monthlyCashFlowAfterTax < -300) list.push("Cash-flow après impôt inférieur à -300 EUR par mois.");
+  if (metrics.netYieldBeforeTax < 0.03) list.push("Rendement net avant impôt inférieur à 3 %.");
+  if (values.vacancyDays < 8) list.push("Vacance locative inférieure à 8 jours par an : hypothèse potentiellement optimiste.");
+  if (values.maintenanceReserve === 0) list.push("Réserve d'entretien nulle : risque de sous-estimer les coûts.");
+  if (values.taxeFonciere === 0) list.push("Taxe foncière absente : vérifiez l'hypothèse.");
   if (values.taxeFonciere > 0 && values.recoverableTaxeOrdures === 0) {
-    list.push("TEOM recuperable non renseignee : si elle est incluse dans la taxe fonciere, les charges proprietaire peuvent etre surestimees.");
+    list.push("TEOM récupérable non renseignée : si elle est incluse dans la taxe foncière, les charges propriétaire peuvent être surestimées.");
   }
   if (values.recoverableTaxeOrdures > values.taxeFonciere) {
-    list.push("TEOM recuperable superieure a la taxe fonciere : le calcul la plafonne au montant de taxe fonciere.");
+    list.push("TEOM récupérable supérieure à la taxe foncière : le calcul la plafonne au montant de taxe foncière.");
   }
   if (["lmnp-real", "micro-bic"].includes(values.taxMode) && values.cfe === 0) {
-    list.push("CFE non renseignee en location meublee : verifier si une cotisation annuelle s'applique.");
+    list.push("CFE non renseignée en location meublée : vérifiez si une cotisation annuelle s'applique.");
   }
   if (values.taxMode === "manual" && values.manualAnnualTax === 0) {
-    list.push("Fiscalite manuelle a 0 EUR : verifier que l'impot annuel attendu est bien nul.");
+    list.push("Fiscalité manuelle à 0 EUR : vérifiez que l'impôt annuel attendu est bien nul.");
   }
-  if (values.purchasePrice > metrics.grossAnnualRent * 20) list.push("Prix superieur a 20 annees de loyer.");
+  if (values.purchasePrice > metrics.grossAnnualRent * 20) list.push("Prix supérieur à 20 années de loyer.");
   if (values.financingMethod === "mortgage" && values.downPayment > metrics.totalProjectCost) {
-    list.push("Apport superieur au cout du projet : le calcul le plafonne au cout total hors frais bancaires.");
+    list.push("Apport supérieur au coût du projet : le calcul le plafonne au coût total hors frais bancaires.");
   }
   return list;
 }
@@ -696,25 +704,25 @@ function setSignedText(element, value, format = money) {
 
 function renderMetrics(metrics) {
   const rows = [
-    ["totalProjectCost", "Cout total du projet", money(metrics.totalProjectCost)],
+    ["totalProjectCost", "Coût total du projet", money(metrics.totalProjectCost)],
     ["grossAnnualRent", "Loyer annuel brut", money(metrics.grossAnnualRent)],
-    ["vacancyCost", "Cout de la vacance", money(metrics.vacancyCost)],
+    ["vacancyCost", "Coût de la vacance", money(metrics.vacancyCost)],
     ["effectiveAnnualRent", "Loyer annuel effectif", money(metrics.effectiveAnnualRent)],
-    ["effectiveTenantCharges", "Charges recuperables effectives", money(metrics.effectiveTenantCharges)],
+    ["effectiveTenantCharges", "Charges récupérables effectives", money(metrics.effectiveTenantCharges)],
     ["grossYieldPrice", "Rendement brut sur prix", percent(metrics.grossYieldPrice)],
-    ["grossYieldTotalCost", "Rendement brut sur cout total", percent(metrics.grossYieldTotalCost)],
+    ["grossYieldTotalCost", "Rendement brut sur coût total", percent(metrics.grossYieldTotalCost)],
     ["annualOperatingExpenses", "Charges annuelles", money(metrics.annualOperatingExpenses)],
     ["netOperatingIncome", "Revenu net d'exploitation", `${money(metrics.netOperatingIncome)} / an`],
-    ["monthlyCashFlowBeforeTax", "Cash-flow avant impot", `${money(metrics.monthlyCashFlowBeforeTax)} / mois`],
-    ["monthlyCashFlowAfterTax", "Cash-flow apres impot", `${money(metrics.monthlyCashFlowAfterTax)} / mois`],
+    ["monthlyCashFlowBeforeTax", "Cash-flow avant impôt", `${money(metrics.monthlyCashFlowBeforeTax)} / mois`],
+    ["monthlyCashFlowAfterTax", "Cash-flow après impôt", `${money(metrics.monthlyCashFlowAfterTax)} / mois`],
     ["taxableProfit", `Base taxable (${metrics.taxModeLabel})`, money(metrics.taxableProfit)],
-    ["estimatedTax", "Impot annuel estime", money(metrics.estimatedTax)],
+    ["estimatedTax", "Impôt annuel estimé", money(metrics.estimatedTax)],
     ["cashInvested", "Cash investi", money(metrics.cashInvested)],
-    ["loanAmount", "Montant emprunte", money(metrics.loanAmount)],
-    ["monthlyDebtService", "Mensualite dette", money(metrics.monthlyDebtService)],
+    ["loanAmount", "Montant emprunté", money(metrics.loanAmount)],
+    ["monthlyDebtService", "Mensualité de dette", money(metrics.monthlyDebtService)],
     ["debtCoverageRatio", "Couverture de dette", metrics.debtCoverageRatio > 20 ? "N/A" : metrics.debtCoverageRatio.toFixed(2)],
-    ["breakEvenRentBeforeTax", "Loyer d'equilibre avant impot", `${money(metrics.breakEvenRentBeforeTax)} / mois`],
-    ["breakEvenRentAfterTax", "Loyer d'equilibre apres impot", `${money(metrics.breakEvenRentAfterTax)} / mois`],
+    ["breakEvenRentBeforeTax", "Loyer d'équilibre avant impôt", `${money(metrics.breakEvenRentBeforeTax)} / mois`],
+    ["breakEvenRentAfterTax", "Loyer d'équilibre après impôt", `${money(metrics.breakEvenRentAfterTax)} / mois`],
   ];
 
   document.querySelector("#metricsList").innerHTML = rows
@@ -759,7 +767,7 @@ function renderScoreBreakdown(result) {
   document.querySelector("#riskScoreValue").textContent = `${result.riskBreakdown.total}/${result.riskBreakdown.max}`;
   document.querySelector("#riskScoreExplanation").textContent =
     result.score < result.rawScore
-      ? `La note brute additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs, puis elle est plafonnee a ${result.score} a cause du risque reglementaire DPE.`
+      ? `La note brute additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs, puis elle est plafonnée à ${result.score} à cause du risque réglementaire DPE.`
       : `La note finale additionne ${result.financialScore} points financiers et ${result.riskBreakdown.total} points qualitatifs. Plus cette partie est haute, plus le risque est favorable.`;
   document.querySelector("#riskScoreRows").innerHTML = result.riskBreakdown.items
     .map(
@@ -782,8 +790,8 @@ function renderEquations(values, metrics) {
 
   const equations = [
     {
-      title: "Cout total du projet",
-      formula: "prix + frais notaire + agence + travaux + mobilier + autres frais",
+      title: "Coût total du projet",
+      formula: "prix + frais de notaire + agence + travaux + mobilier + autres frais",
       current: `${money(values.purchasePrice)} + ${money(notaryFees)} + ${money(values.agencyFees)} + ${money(values.renovationWorks)} + ${money(values.furnitureCost)} + ${money(values.otherUpfrontCosts)} = ${money(metrics.totalProjectCost)}`,
     },
     {
@@ -793,9 +801,9 @@ function renderEquations(values, metrics) {
     },
     {
       title: "Charges annuelles",
-      formula: "charges fixes nettes de TEOM recuperable + loyer effectif x (gestion + GLI)",
+      formula: "charges fixes nettes de TEOM récupérable + loyer effectif x (gestion + GLI)",
       current: `${money(fixedOperatingExpenses)} + ${money(metrics.effectiveAnnualRent)} x ${percent(variableExpenseRate)} = ${money(metrics.annualOperatingExpenses)}`,
-      note: recoverableTaxeOrdures > 0 ? `TEOM recuperable deduite de la taxe fonciere : ${money(recoverableTaxeOrdures)}.` : "",
+      note: recoverableTaxeOrdures > 0 ? `TEOM récupérable déduite de la taxe foncière : ${money(recoverableTaxeOrdures)}.` : "",
     },
     {
       title: "Revenu net d'exploitation",
@@ -803,31 +811,31 @@ function renderEquations(values, metrics) {
       current: `${money(metrics.effectiveAnnualRent)} - ${money(metrics.annualOperatingExpenses)} = ${money(metrics.netOperatingIncome)}`,
     },
     {
-      title: "Mensualite de credit",
+      title: "Mensualité de crédit",
       formula: "capital x [taux mensuel x (1 + taux mensuel)^n] / [(1 + taux mensuel)^n - 1]",
-      current: `${money(metrics.loanAmount)} finance sur ${values.loanDurationYears} ans a ${percent(rate(values.interestRate))}, assurance incluse = ${money(metrics.monthlyDebtService)} / mois`,
+      current: `${money(metrics.loanAmount)} financés sur ${values.loanDurationYears} ans à ${percent(rate(values.interestRate))}, assurance incluse = ${money(metrics.monthlyDebtService)} / mois`,
     },
     {
       title: "Cash investi",
-      formula: "credit : min(max(apport, 0), cout total) + frais bancaires ; comptant : cout total + frais bancaires",
+      formula: "crédit : min(max(apport, 0), coût total) + frais bancaires ; comptant : coût total + frais bancaires",
       current:
         values.financingMethod === "cash"
           ? `${money(metrics.totalProjectCost)} + ${money(values.bankFees)} = ${money(metrics.cashInvested)}`
           : `${money(metrics.effectiveDownPayment)} + ${money(values.bankFees)} = ${money(metrics.cashInvested)}`,
-      note: "En credit, l'apport pris en compte est plafonne au cout total du projet.",
+      note: "En crédit, l'apport pris en compte est plafonné au coût total du projet.",
     },
     {
-      title: "Rendement net avant impot",
-      formula: "revenu net d'exploitation / cout total du projet",
+      title: "Rendement net avant impôt",
+      formula: "revenu net d'exploitation / coût total du projet",
       current: `${money(metrics.netOperatingIncome)} / ${money(metrics.totalProjectCost)} = ${percent(metrics.netYieldBeforeTax)}`,
     },
     {
-      title: "Cash-flow avant impot",
+      title: "Cash-flow avant impôt",
       formula: "(revenu net d'exploitation - dette annuelle) / 12",
       current: `(${money(metrics.netOperatingIncome)} - ${money(annualDebtService)}) / 12 = ${money(metrics.monthlyCashFlowBeforeTax)} / mois`,
     },
     {
-      title: "Impot estime",
+      title: "Impôt estimé",
       formula: `${metrics.taxModeLabel} : ${metrics.taxFormulaLabel}`,
       current:
         values.taxMode === "manual"
@@ -835,29 +843,29 @@ function renderEquations(values, metrics) {
           : `${money(metrics.taxableProfit)} x (TMI ${percent(rate(values.marginalTaxRate))} + PS ${percent(rate(metrics.appliedSocialContributionsRate))}) = ${money(metrics.estimatedTax)}`,
       note:
         values.taxMode === "lmnp-real"
-          ? `Base taxable estimee : ${money(metrics.netOperatingIncome)} - ${money(annualInterest)} - ${money(values.depreciationDeduction)} = ${money(metrics.taxableProfit)}. Les recettes charges comprises estimees sont ${money(metrics.taxableReceipts)}.`
-          : `Recettes fiscales estimees : ${money(metrics.taxableReceipts)}. Base taxable estimee : ${money(metrics.taxableProfit)}.`,
+          ? `Base taxable estimée : ${money(metrics.netOperatingIncome)} - ${money(annualInterest)} - ${money(values.depreciationDeduction)} = ${money(metrics.taxableProfit)}. Les recettes charges comprises estimées sont ${money(metrics.taxableReceipts)}.`
+          : `Recettes fiscales estimées : ${money(metrics.taxableReceipts)}. Base taxable estimée : ${money(metrics.taxableProfit)}.`,
     },
     {
-      title: "Cash-flow apres impot",
-      formula: "(NOI - dette annuelle - impot estime) / 12",
+      title: "Cash-flow après impôt",
+      formula: "(NOI - dette annuelle - impôt estimé) / 12",
       current: `(${money(metrics.netOperatingIncome)} - ${money(annualDebtService)} - ${money(metrics.estimatedTax)}) / 12 = ${money(metrics.monthlyCashFlowAfterTax)} / mois`,
     },
     {
-      title: "Loyer d'equilibre avant impot",
+      title: "Loyer d'équilibre avant impôt",
       formula: "(charges fixes + dette annuelle) / [12 x (1 - vacance) x (1 - frais variables)]",
       current: `(${money(fixedOperatingExpenses)} + ${money(annualDebtService)}) / [12 x ${percent(1 - vacancyRate)} x ${percent(1 - variableExpenseRate)}] = ${money(metrics.breakEvenRentBeforeTax)} / mois`,
     },
     {
-      title: "Loyer d'equilibre apres impot",
-      formula: "resolution du loyer ou cash-flow apres impot = 0",
-      current: `Avec les parametres actuels, le seuil est ${money(metrics.breakEvenRentAfterTax)} / mois.`,
-      note: "Ce calcul est resolu par recherche numerique car l'impot change quand le loyer cible change.",
+      title: "Loyer d'équilibre après impôt",
+      formula: "résolution du loyer où cash-flow après impôt = 0",
+      current: `Avec les paramètres actuels, le seuil est ${money(metrics.breakEvenRentAfterTax)} / mois.`,
+      note: "Ce calcul est résolu par recherche numérique car l'impôt change quand le loyer cible change.",
     },
     {
       title: "Score de risque qualitatif",
-      formula: "DPE + demande locative + etat immeuble + travaux copropriete + liquidite revente",
-      current: "Maximum 30 points : DPE 8, demande 8, etat 6, travaux 4, liquidite 4.",
+      formula: "DPE + demande locative + état immeuble + travaux copropriété + liquidité revente",
+      current: "Maximum 30 points : DPE 8, demande 8, état 6, travaux 4, liquidité 4.",
       note: "Ces points s'ajoutent au score financier sur 70 points. Un score haut signifie un risque qualitatif plus favorable.",
     },
   ];
@@ -910,22 +918,22 @@ function resetForm() {
   });
   render();
   renderProjectList();
-  setStatus("Parametres reinitialises.");
+  setStatus("Paramètres réinitialisés.");
 }
 
 async function copySummary() {
   const values = readValues();
   const { metrics, rating } = calculate(values);
   const text = [
-    "Resume du projet locatif",
+    "Résumé RentaLoc du projet locatif",
     `Prix d'achat : ${money(values.purchasePrice)}`,
-    `Cout total : ${money(metrics.totalProjectCost)}`,
+    `Coût total : ${money(metrics.totalProjectCost)}`,
     `Loyer mensuel : ${money(values.monthlyRent)}`,
     `Vacance locative : ${values.vacancyDays} jours/an`,
     `Rendement brut : ${percent(metrics.grossYieldTotalCost)}`,
-    `Rendement net avant impot : ${percent(metrics.netYieldBeforeTax)}`,
-    `Cash-flow apres impot : ${money(metrics.monthlyCashFlowAfterTax)} / mois`,
-    `Loyer d'equilibre cash-flow 0 : ${money(metrics.breakEvenRentAfterTax)} / mois`,
+    `Rendement net avant impôt : ${percent(metrics.netYieldBeforeTax)}`,
+    `Cash-flow après impôt : ${money(metrics.monthlyCashFlowAfterTax)} / mois`,
+    `Loyer d'équilibre cash-flow 0 : ${money(metrics.breakEvenRentAfterTax)} / mois`,
     `Cash investi : ${money(metrics.cashInvested)}`,
     `Note finale : ${rating}`,
   ].join("\n");
@@ -941,7 +949,7 @@ async function copySummary() {
       document.execCommand("copy");
       textarea.remove();
     }
-    document.querySelector("#copyStatus").textContent = "Resume copie.";
+    document.querySelector("#copyStatus").textContent = "Résumé copié.";
   } catch {
     document.querySelector("#copyStatus").textContent = "Copie indisponible dans ce navigateur.";
   }
@@ -950,7 +958,7 @@ async function copySummary() {
 function handleFormChange() {
   render();
   if (activeProjectId) {
-    setStatus("Modifications non enregistrees.");
+    setStatus("Modifications non enregistrées.");
   }
 }
 
@@ -969,7 +977,7 @@ document.querySelector("#copyButton").addEventListener("click", copySummary);
 document.querySelector("#saveProjectButton").addEventListener("click", saveCurrentProject);
 document.querySelector("#newProjectButton").addEventListener("click", startNewProject);
 projectNameInput.addEventListener("input", () => {
-  if (activeProjectId) setStatus("Nom modifie, pensez a enregistrer.");
+  if (activeProjectId) setStatus("Nom modifié, pensez à enregistrer.");
 });
 projectList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-project-action]");

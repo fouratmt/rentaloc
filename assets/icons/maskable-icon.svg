@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="RentaLoc">
+  <rect width="512" height="512" fill="#08795f"/>
+  <circle cx="256" cy="256" r="196" fill="#e7f5f0"/>
+  <path fill="#075e4d" d="M128 244 256 142l128 102v132a28 28 0 0 1-28 28H156a28 28 0 0 1-28-28V244Z"/>
+  <path fill="#ffffff" d="M190 266h132v30H190zm0 54h78v30h-78z"/>
+  <path fill="#b7e3d6" d="M256 142 112 258l-22-28 166-133 166 133-22 28z"/>
+</svg>
