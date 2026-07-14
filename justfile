@@ -10,6 +10,15 @@ default:
 check:
     node --check src/app.js
     node --check sw.js
+    node --check worker/index.js
+
+# Build the Cloudflare Worker-compatible static bundle.
+build:
+    rm -rf dist
+    mkdir -p dist/server dist/client
+    cp worker/index.js dist/server/index.js
+    cp index.html site.webmanifest sw.js dist/client/
+    cp -R src assets dist/client/
 
 # Serve the static app locally.
 serve:

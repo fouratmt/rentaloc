@@ -891,10 +891,14 @@ function render() {
   document.querySelector("#scoreValue").textContent = Math.round(result.score);
   document.querySelector("#ratingInterpretation").textContent = result.label;
   document.querySelector("#stripRating").textContent = result.rating;
+  document.querySelector("#previewRating").textContent = result.rating;
+  document.querySelector("#previewScore").textContent = Math.round(result.score);
   setSignedText(document.querySelector("#monthlyCashFlowAfterTax"), metrics.monthlyCashFlowAfterTax);
   setSignedText(document.querySelector("#stripCashflow"), metrics.monthlyCashFlowAfterTax);
+  setSignedText(document.querySelector("#previewCashflow"), metrics.monthlyCashFlowAfterTax);
   document.querySelector("#netYieldBeforeTax").textContent = percent(metrics.netYieldBeforeTax);
   document.querySelector("#stripYield").textContent = percent(metrics.netYieldBeforeTax);
+  document.querySelector("#previewYield").textContent = percent(metrics.netYieldBeforeTax);
   setSignedText(document.querySelector("#returnOnCash"), metrics.returnOnCashBeforeTax, percent);
   document.querySelector("#breakEvenRentAfterTax").textContent = `${money(metrics.breakEvenRentAfterTax)} / mois`;
 

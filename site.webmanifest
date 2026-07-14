@@ -1,7 +1,7 @@
 {
   "name": "RentaLoc",
   "short_name": "RentaLoc",
-  "description": "RentaLoc permet d'évaluer rapidement la rentabilité d'un projet locatif en France.",
+  "description": "Calculez le rendement net, le cash-flow, le financement, la fiscalité et les risques d'un investissement locatif en France.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",

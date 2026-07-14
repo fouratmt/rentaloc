@@ -1,4 +1,4 @@
-const cacheName = "rentaloc-v1";
+const cacheName = "rentaloc-v2";
 const appShell = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const appShell = [
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/maskable-icon-512.png",
+  "./assets/og.png",
 ];
 
 const scopedUrl = (path) => new URL(path, self.registration.scope).toString();

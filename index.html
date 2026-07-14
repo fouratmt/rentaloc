@@ -3,11 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RentaLoc - simulateur de projet locatif</title>
+    <title>RentaLoc — la vraie rentabilité de votre projet locatif</title>
     <meta
       name="description"
-      content="RentaLoc permet d'évaluer rapidement la rentabilité d'un projet locatif en France."
+      content="Calculez le rendement net, le cash-flow, le financement, la fiscalité et les risques d'un investissement locatif en France. Sans compte, en quelques minutes."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="RentaLoc — voyez ce que l'annonce ne vous dit pas" />
+    <meta
+      property="og:description"
+      content="Testez la vraie rentabilité d'un bien : charges, crédit, fiscalité, vacance et risques inclus."
+    />
+    <meta property="og:image" content="assets/og.png" />
+    <meta property="og:image:width" content="1734" />
+    <meta property="og:image:height" content="907" />
+    <meta property="og:image:alt" content="RentaLoc transforme les chiffres d'une annonce en rendement net, cash-flow et risques." />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#08795f" />
     <meta name="color-scheme" content="light" />
     <meta name="application-name" content="RentaLoc" />
@@ -21,18 +32,185 @@
     <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Investissement locatif</p>
-        <h1>RentaLoc</h1>
-      </div>
-      <div class="topbar-actions">
-        <button class="ghost-button" type="button" id="helpButton" aria-haspopup="dialog">Guide des calculs</button>
-        <button class="ghost-button" type="button" id="resetButton">Réinitialiser</button>
-      </div>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="RentaLoc, retour en haut de page">
+        <img src="assets/icons/icon.svg" alt="" width="38" height="38" />
+        <span>RentaLoc</span>
+      </a>
+      <nav class="site-nav" aria-label="Navigation principale">
+        <a href="#avantages">Avantages</a>
+        <a href="#fonctionnement">Comment ça marche</a>
+        <a href="#faq">Questions</a>
+      </nav>
+      <a class="header-cta" href="#simulateur">Tester un bien</a>
     </header>
 
-    <main>
+    <main id="top">
+      <section class="landing-hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="hero-kicker"><span></span> Simulateur d'investissement locatif en France</p>
+          <h1 id="hero-title">Voyez ce que l'annonce <em>ne vous dit pas.</em></h1>
+          <p class="hero-lead">
+            Passez du rendement affiché à la rentabilité réelle. RentaLoc intègre les charges,
+            le crédit, la fiscalité, la vacance et les risques pour vous dire si un bien mérite
+            vraiment votre temps.
+          </p>
+          <div class="hero-actions">
+            <a class="cta-primary" href="#simulateur">
+              Analyser mon premier bien
+              <span aria-hidden="true">→</span>
+            </a>
+            <a class="cta-secondary" href="#avantages">Découvrir les calculs</a>
+          </div>
+          <ul class="hero-reassurance" aria-label="Garanties d'utilisation">
+            <li>Sans compte</li>
+            <li>Gratuit</li>
+            <li>Données gardées sur votre appareil</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual" aria-label="Aperçu des résultats RentaLoc">
+          <div class="preview-window">
+            <div class="preview-toolbar">
+              <div class="preview-brand"><span class="preview-mark">R</span> Diagnostic du projet</div>
+              <span class="preview-status"><i></i> Calculé en direct</span>
+            </div>
+            <div class="preview-rating">
+              <div>
+                <span>NOTE GLOBALE</span>
+                <strong id="previewRating">Moyen</strong>
+              </div>
+              <div class="preview-score"><b id="previewScore">--</b><span>/100</span></div>
+            </div>
+            <div class="preview-metrics">
+              <article class="preview-metric featured">
+                <span>Cash-flow après impôt</span>
+                <strong id="previewCashflow">—</strong>
+                <small>par mois</small>
+              </article>
+              <article class="preview-metric">
+                <span>Rendement net</span>
+                <strong id="previewYield">—</strong>
+                <small>avant impôt</small>
+              </article>
+            </div>
+            <div class="preview-insight">
+              <span class="insight-icon" aria-hidden="true">!</span>
+              <p><strong>Le chiffre qui change la décision.</strong> Un rendement brut séduisant peut cacher un effort d'épargne mensuel.</p>
+            </div>
+          </div>
+          <div class="floating-proof proof-one"><strong>3 scénarios</strong><span>optimiste · base · stress</span></div>
+          <div class="floating-proof proof-two"><strong>Score sur 100</strong><span>finance + risques du bien</span></div>
+        </div>
+      </section>
+
+      <section class="trust-bar" aria-label="Points forts de RentaLoc">
+        <div><strong>Une vision nette</strong><span>Brut, net, cash-flow et cash investi</span></div>
+        <div><strong>Des hypothèses réalistes</strong><span>Vacance, entretien, fiscalité et frais oubliés</span></div>
+        <div><strong>Une décision plus sûre</strong><span>Score financier et risques qualitatifs</span></div>
+        <div><strong>Vos données restent à vous</strong><span>Aucun compte, aucun envoi vers un serveur</span></div>
+      </section>
+
+      <section class="problem-section" id="avantages" aria-labelledby="problem-title">
+        <div class="section-intro">
+          <p class="eyebrow">La rentabilité, sans angle mort</p>
+          <h2 id="problem-title">Un « bon rendement » peut devenir une mauvaise affaire.</h2>
+          <p>
+            Les annonces parlent de prix et de loyer. Votre compte bancaire, lui, subit aussi les
+            frais de notaire, la copropriété, l'entretien, la vacance, le financement et l'impôt.
+            RentaLoc remet tous ces coûts dans l'équation.
+          </p>
+        </div>
+        <div class="comparison-card" aria-label="Comparaison entre rendement affiché et analyse RentaLoc">
+          <div class="comparison-side naive-side">
+            <p>L'annonce vous montre</p>
+            <strong>6,5 %</strong>
+            <span>de rendement brut</span>
+            <small>Prix + loyer. C'est tout.</small>
+          </div>
+          <div class="comparison-arrow" aria-hidden="true">→</div>
+          <div class="comparison-side smart-side">
+            <p>RentaLoc vous montre</p>
+            <ul>
+              <li><span>Rendement net réel</span><b>Charges incluses</b></li>
+              <li><span>Cash-flow mensuel</span><b>Après crédit et impôt</b></li>
+              <li><span>Loyer d'équilibre</span><b>Votre seuil de sécurité</b></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="features-section" aria-labelledby="features-title">
+        <div class="section-intro centered">
+          <p class="eyebrow">Tout ce qu'il faut pour trancher</p>
+          <h2 id="features-title">Transformez une annonce en décision d'investissement.</h2>
+          <p>Pas un tableur de plus. Une lecture claire de la performance, du financement et des risques.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card feature-large">
+            <span class="feature-number">01</span>
+            <h3>Le vrai cash-flow, après tout</h3>
+            <p>Visualisez l'argent qui reste — ou qu'il faudra ajouter — chaque mois après charges, dette et impôt estimé.</p>
+            <div class="mini-cashflow">
+              <span>LOYER</span><i></i><span>CHARGES</span><i></i><span>CRÉDIT</span><i></i><strong>CASH-FLOW</strong>
+            </div>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">02</span>
+            <h3>Un financement qui colle au projet</h3>
+            <p>Testez apport, taux, durée, assurance et frais bancaires. Comparez aussi l'achat à crédit au comptant.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">03</span>
+            <h3>La fiscalité n'est plus oubliée</h3>
+            <p>Estimez simplement l'impact du LMNP réel, du micro-BIC, du micro-foncier ou saisissez votre propre hypothèse.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">04</span>
+            <h3>Les risques comptent dans la note</h3>
+            <p>DPE, demande locative, état de l'immeuble, travaux de copropriété et liquidité à la revente complètent le score financier.</p>
+          </article>
+          <article class="feature-card feature-accent">
+            <span class="feature-number">05</span>
+            <h3>Stress-testez avant de vous engager</h3>
+            <p>Voyez ce que devient le projet si le loyer baisse, si la vacance double ou si les coûts d'entretien montent.</p>
+            <div class="scenario-pills"><span>Optimiste</span><span>Base</span><span>Stress</span></div>
+          </article>
+          <article class="feature-card">
+            <span class="feature-number">06</span>
+            <h3>Comparez plusieurs opportunités</h3>
+            <p>Nommez et sauvegardez vos simulations dans votre navigateur pour retrouver chaque bien sans ressaisie.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="how-section" id="fonctionnement" aria-labelledby="how-title">
+        <div class="how-copy">
+          <p class="eyebrow">Une réponse en trois temps</p>
+          <h2 id="how-title">De l'annonce au verdict, en quelques minutes.</h2>
+          <p>RentaLoc est assez simple pour un premier achat et assez complet pour comparer sérieusement plusieurs projets.</p>
+          <a class="text-link" href="#simulateur">Commencer l'analyse <span aria-hidden="true">→</span></a>
+        </div>
+        <ol class="steps-list">
+          <li><span>1</span><div><h3>Copiez les chiffres du bien</h3><p>Prix, loyer, travaux, charges et taxe foncière.</p></div></li>
+          <li><span>2</span><div><h3>Ajoutez votre financement</h3><p>Apport, taux, durée et hypothèses fiscales.</p></div></li>
+          <li><span>3</span><div><h3>Lisez le diagnostic</h3><p>Note, cash-flow, rendement net, alertes et scénarios de sensibilité.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="simulator-section" id="simulateur" aria-labelledby="simulator-title">
+        <div class="simulator-heading">
+          <div>
+            <p class="eyebrow">Votre analyse commence ici</p>
+            <h2 id="simulator-title">Ce bien vaut-il vraiment le coup ?</h2>
+            <p>Modifiez les hypothèses : tous les résultats se recalculent instantanément.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost-button" type="button" id="helpButton" aria-haspopup="dialog">Guide des calculs</button>
+            <button class="ghost-button" type="button" id="resetButton">Réinitialiser</button>
+          </div>
+        </div>
+
       <section class="intro" aria-labelledby="intro-title">
         <div>
           <h2 id="intro-title">Estimer la solidité d'un bien avant d'aller plus loin.</h2>
@@ -428,7 +606,55 @@
           </article>
         </div>
       </section>
+      </section>
+
+      <section class="faq-section" id="faq" aria-labelledby="faq-title">
+        <div class="section-intro">
+          <p class="eyebrow">Questions fréquentes</p>
+          <h2 id="faq-title">Ce qu'il faut savoir avant de commencer.</h2>
+          <p>RentaLoc vous aide à filtrer et comparer les opportunités. Vous gardez la main sur chaque hypothèse.</p>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Est-ce vraiment gratuit ?</summary>
+            <p>Oui. Vous pouvez utiliser le simulateur, enregistrer plusieurs projets et consulter le détail des calculs sans créer de compte.</p>
+          </details>
+          <details>
+            <summary>Où sont enregistrées mes simulations ?</summary>
+            <p>Elles restent dans le stockage local de votre navigateur. Elles ne sont pas envoyées vers un serveur et restent liées à cet appareil et à ce navigateur.</p>
+          </details>
+          <details>
+            <summary>Les calculs fiscaux remplacent-ils un comptable ?</summary>
+            <p>Non. Ils donnent une estimation volontairement simplifiée pour ne pas ignorer l'impôt. Faites valider votre montage final par un professionnel.</p>
+          </details>
+          <details>
+            <summary>Puis-je comparer plusieurs biens ?</summary>
+            <p>Oui. Donnez un nom à chaque simulation, enregistrez-la, puis rechargez-la pour comparer les hypothèses et les diagnostics.</p>
+          </details>
+          <details>
+            <summary>Est-ce que RentaLoc fonctionne sur mobile ?</summary>
+            <p>Oui. L'interface est adaptée aux petits écrans et peut être installée comme une application. Après la première visite, le calculateur fonctionne aussi hors ligne.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="final-cta" aria-labelledby="final-cta-title">
+        <div>
+          <p class="eyebrow">La prochaine annonce peut attendre cinq minutes</p>
+          <h2 id="final-cta-title">Mieux vaut découvrir un mauvais projet maintenant qu'après la signature.</h2>
+        </div>
+        <a class="cta-primary cta-light" href="#simulateur">Tester mon projet <span aria-hidden="true">→</span></a>
+      </section>
     </main>
+
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="#top" aria-label="RentaLoc, retour en haut de page">
+        <img src="assets/icons/icon.svg" alt="" width="34" height="34" />
+        <span>RentaLoc</span>
+      </a>
+      <p>Une première analyse claire avant une décision qui vous engage.</p>
+      <a href="#simulateur">Ouvrir le simulateur ↑</a>
+    </footer>
 
     <section class="help-overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
       <div class="help-dialog" role="document">
