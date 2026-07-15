@@ -28,7 +28,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png" />
     <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body>
@@ -42,7 +42,10 @@
         <a href="#fonctionnement">Comment ça marche</a>
         <a href="#faq">Questions</a>
       </nav>
-      <a class="header-cta" href="#simulateur">Tester un bien</a>
+      <div class="header-actions">
+        <button class="install-button" id="installButton" type="button" hidden>Installer l'app</button>
+        <a class="header-cta" href="#simulateur">Tester un bien</a>
+      </div>
     </header>
 
     <main id="top">
@@ -259,7 +262,7 @@
               <label>
                 <span>Frais de notaire estimés (% du prix)</span>
                 <div class="unit-input">
-                  <input data-field="notaryRate" type="number" min="0" max="20" step="0.1" value="7.5" />
+                  <input data-field="notaryRate" type="number" min="0" max="20" step="0.1" value="8" />
                   <span>%</span>
                 </div>
               </label>
@@ -293,7 +296,7 @@
                 <input data-field="monthlyRent" type="number" min="1" step="10" value="650" />
               </label>
               <label>
-                <span>Charges récupérables (€/mois)</span>
+                <span>Provisions récupérées, hors TEOM (€/mois)</span>
                 <input data-field="tenantCharges" type="number" min="0" step="10" value="50" />
               </label>
               <label>
@@ -315,6 +318,10 @@
               <label>
                 <span>Charges non récupérables (€/an)</span>
                 <input data-field="nonRecoverableCharges" type="number" min="0" step="50" value="600" />
+              </label>
+              <label>
+                <span>Dépenses récupérables payées, hors TEOM (€/an)</span>
+                <input data-field="recoverableOperatingExpenses" type="number" min="0" step="50" value="600" />
               </label>
               <label>
                 <span>Taxe foncière estimée (€/an)</span>
@@ -407,6 +414,13 @@
                 <span>Frais bancaires initiaux (€)</span>
                 <input data-field="bankFees" type="number" min="0" step="100" value="1000" />
               </label>
+              <label>
+                <span>Année du prêt analysée</span>
+                <div class="unit-input">
+                  <input data-field="loanYear" type="number" min="1" max="30" step="1" value="1" />
+                  <span>année</span>
+                </div>
+              </label>
             </div>
           </section>
 
@@ -414,11 +428,27 @@
             <summary>Fiscalité et risques</summary>
             <div class="field-grid details-grid">
               <label>
+                <span>Type de location</span>
+                <select data-field="rentalType">
+                  <option value="furnished">Meublée</option>
+                  <option value="unfurnished">Vide</option>
+                </select>
+              </label>
+              <label>
+                <span>Usage du meublé</span>
+                <select data-field="rentalUse">
+                  <option value="long-term">Longue durée</option>
+                  <option value="tourist-classified">Tourisme classé</option>
+                  <option value="tourist-unclassified">Tourisme non classé</option>
+                </select>
+              </label>
+              <label>
                 <span>Régime fiscal</span>
                 <select data-field="taxMode">
                   <option value="lmnp-real">LMNP réel simplifié</option>
                   <option value="micro-bic">Micro-BIC</option>
                   <option value="micro-foncier">Micro-foncier</option>
+                  <option value="foncier-real">Régime réel foncier simplifié</option>
                   <option value="manual">Estimation manuelle</option>
                 </select>
               </label>
@@ -439,6 +469,25 @@
               <label>
                 <span>Amortissement / déduction estimée (€/an)</span>
                 <input data-field="depreciationDeduction" type="number" min="0" step="100" value="2500" />
+              </label>
+              <label>
+                <span>Réserves réellement dépensées et déductibles (€/an)</span>
+                <input data-field="deductibleReserveExpenses" type="number" min="0" step="50" value="0" />
+              </label>
+              <label>
+                <span>Autres recettes locatives brutes du foyer (€/an)</span>
+                <input data-field="otherHouseholdRentalReceipts" type="number" min="0" step="500" value="0" />
+              </label>
+              <label>
+                <span>Autres revenus professionnels du foyer (€/an)</span>
+                <input data-field="householdActivityIncome" type="number" min="0" step="1000" value="0" />
+              </label>
+              <label>
+                <span>Année d'activité locative</span>
+                <div class="unit-input">
+                  <input data-field="rentalActivityYear" type="number" min="1" step="1" value="1" />
+                  <span>année</span>
+                </div>
               </label>
               <label>
                 <span>Impôt manuel estimé (€/an)</span>
@@ -539,6 +588,12 @@
             </div>
             <p class="score-explanation" id="riskScoreExplanation"></p>
             <div class="risk-score-list" id="riskScoreRows"></div>
+          </section>
+
+          <section class="panel validation-panel" id="validationPanel" hidden>
+            <h2>Paramètres à corriger</h2>
+            <p>La note et l'enregistrement sont suspendus pour éviter un résultat trompeur.</p>
+            <ul id="validationList"></ul>
           </section>
 
           <section class="panel warnings-panel" id="warningsPanel" hidden>
@@ -683,8 +738,8 @@
             <h3>Acquisition</h3>
             <code>coût total = prix + frais de notaire + agence + travaux + mobilier + autres frais initiaux</code>
             <p>
-              Les frais de notaire sont estimés en pourcentage du prix d'achat. Le taux par défaut de 7,5 % correspond à un ordre
-              de grandeur courant dans l'ancien ; dans le neuf, il faut souvent utiliser un taux plus bas. Les frais bancaires sont
+              Les frais de notaire sont estimés en pourcentage du prix d'achat. Le taux prudent par défaut de 8 % vise l'ancien et
+              tient compte de la hausse possible des droits de mutation selon le département ; dans le neuf, utilisez un taux plus bas. Les frais bancaires sont
               suivis dans le cash investi, mais ne gonflent pas automatiquement le montant financé.
             </p>
           </section>
@@ -703,13 +758,14 @@
 
           <section class="help-section">
             <h3>Charges et revenu net</h3>
-            <code>taxe foncière nette = taxe foncière - TEOM récupérable plafonnée</code>
-            <code>charges annuelles = charges fixes + loyer effectif x (gestion + GLI)</code>
+            <code>charges récupérées = min(provisions encaissées, dépenses récupérables x occupation) + TEOM x occupation</code>
+            <code>charges annuelles = dépenses brutes + frais variables - récupérations effectives</code>
             <code>NOI = loyer effectif - charges annuelles</code>
             <p>
-              Le NOI est le revenu net d'exploitation avant crédit et impôt. Les frais de gestion et la GLI varient avec le loyer
-              encaissé ; les autres charges sont traitées comme fixes. La CFE, les diagnostics et la relocation sont séparés pour
-              éviter de les oublier dans les projets meublés ou à forte rotation.
+              Le NOI est le revenu net d'exploitation avant crédit et impôt. Les frais de gestion et la GLI varient avec les loyers
+              et provisions encaissés. Les dépenses récupérables sont comptées en totalité puis compensées uniquement pendant
+              l'occupation : le propriétaire supporte ainsi correctement la fuite liée à la vacance. Après régularisation annuelle,
+              une provision supérieure aux dépenses n'est jamais comptée comme un revenu du bailleur.
             </p>
           </section>
 
@@ -721,22 +777,24 @@
             <code>cash investi = apport plafonné + frais bancaires</code>
             <code>achat comptant : cash investi = coût total + frais bancaires</code>
             <p>
-              Le capital emprunté finance le coût total du projet moins l'apport. L'assurance emprunteur est approximée comme un
-              taux annuel appliqué au capital initial. Les intérêts déductibles sont estimés avec le taux annuel sur le capital
-              emprunté : c'est une approximation de première année, pas un tableau d'amortissement complet.
+              Le capital emprunté finance le coût total du projet moins l'apport. L'assurance emprunteur reste estimée comme un
+              taux annuel appliqué au capital initial. En revanche, intérêts, capital remboursé et solde sont calculés échéance par
+              échéance pour l'année du prêt sélectionnée.
             </p>
           </section>
 
           <section class="help-section">
             <h3>Fiscalité</h3>
-            <code>LMNP réel = max(0, NOI - intérêts - amortissement/déduction) x (TMI + 18,6 %)</code>
-            <code>micro-BIC = recettes charges comprises après abattement 50 % x (TMI + 18,6 %)</code>
+            <code>LMNP réel = max(0, recettes charges comprises - dépenses réelles - financement - amortissement plafonné) x (TMI + 18,6 %)</code>
+            <code>micro-BIC longue durée/classé = recettes charges comprises après abattement 50 % x (TMI + 18,6 %)</code>
+            <code>micro-BIC tourisme non classé = recettes charges comprises après abattement 30 % x (TMI + 18,6 %)</code>
             <code>micro-foncier = loyers hors charges x 70 % x (TMI + 17,2 %)</code>
+            <code>foncier réel = max(0, loyers hors charges - dépenses réellement déductibles - financement) x (TMI + 17,2 %)</code>
             <code>manuel = impôt annuel saisi directement</code>
             <p>
-              La fiscalité reste volontairement simplifiée. Elle ne remplace pas un calcul comptable LMNP réel, ne gère pas les
-              amortissements par composant, les déficits reportables, les cas de location courte durée, la SCI ou les cotisations
-              sociales professionnelles. Elle sert à ne pas ignorer l'impôt dans la lecture du cash-flow.
+              Le modèle vérifie la cohérence meublé/vide, les seuils micro 2026 et le risque de passage LMP. En LMNP réel,
+              l'amortissement ne peut pas créer de déficit : la part non utilisée est affichée séparément. Les réserves de trésorerie
+              ne deviennent déductibles que si vous indiquez la part réellement dépensée. La fiscalité reste une estimation à valider.
             </p>
           </section>
 
@@ -758,7 +816,7 @@
 
           <section class="help-section">
             <h3>Loyer d'équilibre</h3>
-            <code>avant impôt = (charges fixes + dette annuelle) / [12 x (1 - vacance) x (1 - frais variables)]</code>
+            <code>avant impôt = (dépenses fixes + dette - récupérations fixes) / [12 x (1 - vacance) x (1 - frais variables)]</code>
             <code>après impôt = loyer où (NOI - dette annuelle - impôt estimé) / 12 = 0</code>
             <p>
               Le seuil avant impôt isole les charges fixes et les frais variables, car gestion et GLI augmentent avec le loyer.
@@ -777,6 +835,10 @@
               travaux et liquidité de revente.
             </p>
             <p>
+              Ce score est une grille heuristique de comparaison, pas une probabilité de succès ni un modèle statistique. Comparez
+              surtout des projets avec les mêmes hypothèses et examinez les montants détaillés derrière la note.
+            </p>
+            <p>
               Un DPE G plafonne la note à Mauvais car la location est interdite pour les baux signés, renouvelés ou reconduits
               depuis 2025. Un DPE F plafonne la note à Risque en anticipation de l'interdiction de 2028. Ces plafonds évitent
               qu'un bon rendement masque un blocage réglementaire.
@@ -787,10 +849,34 @@
             <h3>Compromis assumes</h3>
             <p>
               Le modèle ne calcule ni plus-value, ni IRR, ni revente, ni indexation future des loyers, ni inflation des charges.
-              Il ne vérifie pas les loyers de marché, l'encadrement local, le plafond de régime micro ou l'éligibilité exacte d'un
-              régime fiscal. Les résultats sont donc une aide au tri et à la négociation, pas une décision d'achat automatique.
+              Il ne vérifie pas les loyers de marché, l'encadrement local, la décomposition comptable des amortissements ni les
+              particularités de chaque foyer. Les seuils et incompatibilités principales sont bloquants, mais le résultat reste une
+              aide au tri et à la négociation, pas une décision d'achat automatique.
             </p>
           </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="help-overlay install-overlay" id="installOverlay" role="dialog" aria-modal="true" aria-labelledby="installTitle" hidden>
+      <div class="help-dialog install-dialog" role="document">
+        <header class="help-header">
+          <div>
+            <p class="eyebrow">Application installable</p>
+            <h2 id="installTitle">Installer RentaLoc</h2>
+          </div>
+          <button class="ghost-button help-close" type="button" id="installCloseButton">Fermer</button>
+        </header>
+        <div class="install-body">
+          <img src="assets/icons/icon-192.png" alt="" width="72" height="72" />
+          <div>
+            <p id="installInstructions">
+              Ouvrez le menu de votre navigateur, puis choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».
+            </p>
+            <p class="install-note">
+              Une fois installée, RentaLoc s'ouvre comme une application et reste utilisable hors connexion après la première visite.
+            </p>
+          </div>
         </div>
       </div>
     </section>

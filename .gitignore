@@ -22,7 +22,3 @@ Thumbs.db
 # Logs
 npm-debug.log*
 yarn-debug.log*
-
-# Generated site output
-dist/
-.sites-archive.tgz

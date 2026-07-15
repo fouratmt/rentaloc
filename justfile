@@ -10,19 +10,11 @@ default:
 check:
     node --check src/app.js
     node --check sw.js
-    node --check worker/index.js
-
-# Build the Cloudflare Worker-compatible static bundle.
-build:
-    rm -rf dist
-    mkdir -p dist/server dist/client
-    cp worker/index.js dist/server/index.js
-    cp index.html site.webmanifest sw.js dist/client/
-    cp -R src assets dist/client/
+    node --test tests/*.test.cjs
 
 # Serve the static app locally.
 serve:
-    python3 -m http.server {{port}}
+    python3 -m http.server --bind 127.0.0.1 {{port}}
 
 # Show repository status.
 status:
