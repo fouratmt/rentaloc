@@ -5,7 +5,7 @@
   "lang": "fr",
   "dir": "ltr",
   "id": "./",
-  "start_url": "./",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
@@ -18,7 +18,7 @@
       "name": "Nouvelle simulation",
       "short_name": "Simuler",
       "description": "Ouvrir directement le simulateur RentaLoc.",
-      "url": "./#simulateur",
+      "url": "./app.html",
       "icons": [
         {
           "src": "assets/icons/icon-192.png",
@@ -31,7 +31,7 @@
       "name": "Guide des calculs",
       "short_name": "Méthode",
       "description": "Consulter la méthodologie et les hypothèses du simulateur.",
-      "url": "./#faq",
+      "url": "./app.html#method-title",
       "icons": [
         {
           "src": "assets/icons/icon-192.png",

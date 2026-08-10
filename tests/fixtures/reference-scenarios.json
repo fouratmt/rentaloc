@@ -1,0 +1,79 @@
+{
+  "provenance": {
+    "method": "Independent arithmetic fixtures derived from the documented formulas",
+    "createdOn": "2026-08-07",
+    "professionalApproval": "pending"
+  },
+  "scenarios": [
+    {
+      "name": "cash purchase without expenses or tax",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "taxMode": "manual",
+        "manualAnnualTax": 0
+      },
+      "expected": {
+        "totalProjectCost": 100000,
+        "grossAnnualRent": 12000,
+        "netOperatingIncome": 12000,
+        "netYieldBeforeTax": 0.12,
+        "monthlyCashFlowAfterTax": 1000,
+        "cashInvested": 100000,
+        "loanAmount": 0,
+        "breakEvenRentAfterTax": 0
+      }
+    },
+    {
+      "name": "zero-rate ten-year mortgage",
+      "overrides": {
+        "purchasePrice": 120000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "downPayment": 20000,
+        "interestRate": 0,
+        "loanDurationYears": 10,
+        "borrowerInsuranceRate": 0,
+        "bankFees": 0,
+        "taxMode": "manual",
+        "manualAnnualTax": 0
+      },
+      "expected": {
+        "totalProjectCost": 120000,
+        "loanAmount": 100000,
+        "monthlyDebtService": 833.3333333333334,
+        "annualInterest": 0,
+        "annualPrincipalRepaid": 10000,
+        "monthlyCashFlowAfterTax": 166.66666666666666,
+        "cashInvested": 20000
+      }
+    }
+  ]
+}

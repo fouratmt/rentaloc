@@ -1,9 +1,15 @@
 const cachePrefix = "rentaloc-";
-const cacheName = `${cachePrefix}v5`;
+const cacheName = `${cachePrefix}v17`;
 const coreAppShell = [
   "./",
   "./index.html",
-  "./src/styles.css",
+  "./app.html",
+  "./src/styles.css?v=17",
+  "./src/install.js",
+  "./src/rules.js",
+  "./src/schema.js",
+  "./src/domain.js",
+  "./src/storage.js",
   "./src/app.js",
   "./site.webmanifest",
   "./assets/icons/icon.svg",
@@ -15,7 +21,12 @@ const coreAppShell = [
 
 const scopedUrl = (path) => new URL(path, self.registration.scope).toString();
 const scopeUrl = new URL(self.registration.scope);
-const offlineDocumentUrl = scopedUrl("./index.html");
+const landingDocumentUrl = scopedUrl("./index.html");
+const appDocumentUrl = scopedUrl("./app.html");
+
+function offlineDocumentFor(url) {
+  return url.pathname.endsWith("/app.html") ? appDocumentUrl : landingDocumentUrl;
+}
 
 function isWithinScope(url) {
   return url.origin === scopeUrl.origin && url.pathname.startsWith(scopeUrl.pathname);
@@ -56,6 +67,7 @@ self.addEventListener("fetch", (event) => {
   if (!isWithinScope(requestUrl)) return;
 
   if (event.request.mode === "navigate") {
+    const offlineDocumentUrl = offlineDocumentFor(requestUrl);
     event.respondWith(
       fetch(event.request)
         .then(async (response) => {

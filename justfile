@@ -8,9 +8,14 @@ default:
 
 # Run lightweight project checks.
 check:
+    node --check src/rules.js
+    node --check src/schema.js
+    node --check src/domain.js
+    node --check src/storage.js
+    node --check src/install.js
     node --check src/app.js
     node --check sw.js
-    node --test tests/*.test.cjs
+    node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-functions=95 --test-coverage-branches=70 --test tests/*.test.cjs
 
 # Serve the static app locally.
 serve:
