@@ -17,6 +17,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - uses: extractions/setup-just@v3
+      - name: Install development tooling
+        run: npm ci
+      - name: Audit development dependencies
+        run: npm audit --audit-level=high
       - name: Run project checks
         run: just check
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install development tooling
+        run: npm ci
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Run browser tests
+        run: npm run test:e2e

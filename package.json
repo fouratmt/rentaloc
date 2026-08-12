@@ -1,0 +1,36 @@
+{
+  "name": "rentaloc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build-free rental investment analysis PWA for metropolitan France.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "npm run check:syntax && npm run lint && npm run format:check && npm test",
+    "check:fiscal-approval": "node scripts/check-fiscal-approval.cjs",
+    "release:check": "npm run check && npm run test:e2e && npm run check:fiscal-approval",
+    "check:syntax": "node --check src/rules.js && node --check src/schema.js && node --check src/domain.js && node --check src/storage.js && node --check src/install.js && node --check src/app.js && node --check sw.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
+    "lint:css": "stylelint 'src/**/*.css'",
+    "lint:html": "html-validate index.html app.html",
+    "lint:js": "eslint src sw.js tests",
+    "lint:md": "markdownlint-cli2",
+    "serve": "python3 -m http.server --bind 127.0.0.1 8000",
+    "test": "node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-functions=95 --test-coverage-branches=70 --test tests/*.test.cjs",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium webkit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "eslint": "9.33.0",
+    "html-validate": "10.4.0",
+    "jsdom": "30.0.1",
+    "markdownlint-cli2": "0.23.2",
+    "prettier": "3.6.2",
+    "stylelint": "16.23.1",
+    "stylelint-config-standard": "39.0.0"
+  }
+}

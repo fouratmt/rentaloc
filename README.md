@@ -6,7 +6,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 
 - Simulates acquisition costs, rent, expenses, financing, taxes, and risk factors.
 - Automatically calculates cash flow, yields, break-even rent, and the overall score.
-- Saves multiple simulations locally in the browser.
+- Saves multiple simulations locally, compares them, and supports explicit JSON backup/restore and bulk deletion.
 - Includes an in-app guide for formulas and calculation assumptions.
 - Works offline after the first load through the service worker.
 
@@ -20,6 +20,11 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - The canonical status, gap analysis, and remaining-work roadmap is [`docs/progression-shell-fr.md`](docs/progression-shell-fr.md).
 - Official rule sources and review dates are in [`docs/fiscal-rules.md`](docs/fiscal-rules.md).
 - Module boundaries and data flow are documented in [`docs/architecture.md`](docs/architecture.md).
+- Contribution/review rules and release operations are documented in [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/release-runbook.md`](docs/release-runbook.md).
+- Major architectural choices are indexed in [`docs/adr/README.md`](docs/adr/README.md).
+- Trust boundaries and security review triggers are documented in [`docs/threat-model.md`](docs/threat-model.md).
+- The latest MVP release audit is [`docs/mvp-readiness-audit-2026-08-12.md`](docs/mvp-readiness-audit-2026-08-12.md).
+- Cloudflare Pages deployment, production approval, and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
 
 ## Structure
 
@@ -28,7 +33,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - `src/rules.js`: dated fiscal, regulatory, validation, and score configuration.
 - `src/schema.js`: versioned simulation defaults, enums, units, normalization, and runtime validation.
 - `src/domain.js`: pure financial calculations, tax estimates, scoring, warnings, and copied summaries.
-- `src/storage.js`: bounded, migrated, recoverable local project repository.
+- `src/storage.js`: bounded, migrated, recoverable local project repository and strict portable-file codec.
 - `src/install.js`: shared PWA registration, install prompt, and install-dialog behavior for both pages.
 - `src/app.js`: simulator DOM rendering, user interactions, accessibility state, and controller logic.
 - `src/styles.css`: responsive layout.
@@ -37,9 +42,19 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - `assets/icons/`: installation icons.
 - `tests/`: domain, schema, persistence, accessibility-structure, manifest, and app-shell checks.
 
-## Local Checks
+## Prerequisites and local checks
 
-The project has no build step or runtime dependency. Local verification expects Node.js 22+, `just`, and Python 3 for the static server.
+The project has no build step or runtime dependency. It supports Node.js 22 or newer (pinned to the Node 22 release line in `.node-version`) and Python 3.11 or newer for the local static server. `just` 1.25 or newer is optional and provides short aliases for the standard npm commands.
+
+```sh
+npm install
+npm run check
+npm run serve
+npm run test:e2e:install # once per machine
+npm run test:e2e
+```
+
+The committed lockfile must be updated whenever development tooling is added or changed. Contributors with `just` can run the equivalent commands:
 
 ```sh
 just check
@@ -48,6 +63,12 @@ just serve
 
 Then open `http://localhost:8000` for the landing page or `http://localhost:8000/app.html` for the simulator.
 
-`just check` performs JavaScript syntax checks, 34 Node tests, schema/HTML/manifest/accessibility smoke checks, app-shell validation, fiscal-rule expiry checks, and coverage gates (90% lines, 95% functions, 70% branches). The same command runs in GitHub Actions for pull requests and pushes to `main`.
+`npm run check` and `just check` perform JavaScript syntax checks, Node tests, schema/HTML/manifest/accessibility smoke checks, app-shell validation, fiscal-rule expiry checks, and coverage gates (90% lines, 95% functions, 70% branches). The same verification runs in GitHub Actions for pull requests and pushes to `main`.
+
+`npm run test:e2e` starts a deterministic local server and runs Chromium, desktop WebKit, and iPhone-profile WebKit. It covers calculation, validation, persistence across reload, project comparison/capacity, JSON portability, dialogs, clipboard feedback, 320 px reflow, and install guidance. Offline navigation and real waiting-worker activation run in Chromium; the required physical Safari/iOS matrix is tracked in [`docs/browser-compatibility-evidence.md`](docs/browser-compatibility-evidence.md). Browser artifacts are retained locally only on failure and are ignored by Git.
+
+`npm run release:check` adds the browser suite and the qualified fiscal-fixture approval gate. It is expected to fail until the external approval described in [`docs/fiscal-fixture-review.md`](docs/fiscal-fixture-review.md) is recorded. Branch pushes deploy Cloudflare Pages previews after repository secrets and environments are configured; production from `main` additionally requires that approval.
+
+Development-only quality tools are pinned in `package-lock.json`: ESLint for JavaScript, Stylelint for CSS, html-validate for HTML, markdownlint for Markdown, and Prettier for consistent formatting. Run `npm run lint`, `npm run format:check`, or `npm run format` directly when working on a specific quality concern.
 
 The UI targets current evergreen browsers. Clipboard, install prompts, and service-worker behavior degrade when their browser APIs are unavailable. The completed rendered audit and remaining manual screen-reader checks are recorded in [`docs/accessibility-audit.md`](docs/accessibility-audit.md).

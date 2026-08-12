@@ -8,14 +8,27 @@ default:
 
 # Run lightweight project checks.
 check:
-    node --check src/rules.js
-    node --check src/schema.js
-    node --check src/domain.js
-    node --check src/storage.js
-    node --check src/install.js
-    node --check src/app.js
-    node --check sw.js
-    node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-functions=95 --test-coverage-branches=70 --test tests/*.test.cjs
+    npm run check
+
+# Format repository source and documentation.
+format:
+    npm run format
+
+# Install the Chromium runtime used by E2E tests.
+install-browser:
+    npm run test:e2e:install
+
+# Run browser end-to-end tests.
+test-e2e:
+    npm run test:e2e
+
+# Run every production release gate, including qualified fiscal approval.
+release-check:
+    npm run release:check
+
+# Stage the static Cloudflare Pages artifact.
+stage-site:
+    sh scripts/stage-static-site.sh
 
 # Serve the static app locally.
 serve:

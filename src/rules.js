@@ -85,24 +85,63 @@
   });
 
   const taxModeConfigs = Object.freeze({
-    "lmnp-real": Object.freeze({ label: "LMNP réel simplifié", socialContributionsRate: RULESET.tax.furnishedSocialContributionsRate }),
-    "micro-bic": Object.freeze({ label: "Micro-BIC", socialContributionsRate: RULESET.tax.furnishedSocialContributionsRate }),
+    "lmnp-real": Object.freeze({
+      label: "LMNP réel simplifié",
+      socialContributionsRate: RULESET.tax.furnishedSocialContributionsRate,
+    }),
+    "micro-bic": Object.freeze({
+      label: "Micro-BIC",
+      socialContributionsRate: RULESET.tax.furnishedSocialContributionsRate,
+    }),
     "micro-foncier": Object.freeze({
       label: "Micro-foncier",
       socialContributionsRate: RULESET.tax.unfurnishedSocialContributionsRate,
       abatementRate: RULESET.tax.microFoncier.abatementRate,
       minimumAbatement: RULESET.tax.microFoncier.minimumAbatement,
     }),
-    "foncier-real": Object.freeze({ label: "Régime réel foncier simplifié", socialContributionsRate: RULESET.tax.unfurnishedSocialContributionsRate }),
+    "foncier-real": Object.freeze({
+      label: "Régime réel foncier simplifié",
+      socialContributionsRate: RULESET.tax.unfurnishedSocialContributionsRate,
+    }),
     manual: Object.freeze({ label: "Estimation manuelle", socialContributionsRate: null }),
   });
 
   const riskScoreDefinitions = Object.freeze([
-    Object.freeze({ key: "dpeRating", label: "DPE", max: 8, scores: Object.freeze({ A: 8, B: 8, C: 8, D: 6, E: 3, F: 0, G: 0 }), labels: Object.freeze({ A: "A", B: "B", C: "C", D: "D", E: "E", F: "F", G: "G" }) }),
-    Object.freeze({ key: "rentalDemand", label: "Demande locative", max: 8, scores: Object.freeze({ strong: 8, medium: 4, weak: 0 }), labels: Object.freeze({ strong: "Forte", medium: "Moyenne", weak: "Faible" }) }),
-    Object.freeze({ key: "buildingCondition", label: "État de l'immeuble", max: 6, scores: Object.freeze({ good: 6, average: 3, risky: 0 }), labels: Object.freeze({ good: "Bon", average: "Moyen", risky: "Risque" }) }),
-    Object.freeze({ key: "majorWorksRisk", label: "Travaux de copropriété", max: 4, scores: Object.freeze({ no: 4, uncertain: 2, yes: 0 }), labels: Object.freeze({ no: "Non", uncertain: "Incertain", yes: "Oui" }) }),
-    Object.freeze({ key: "resaleLiquidity", label: "Liquidité revente", max: 4, scores: Object.freeze({ easy: 4, normal: 2, hard: 0 }), labels: Object.freeze({ easy: "Facile", normal: "Normale", hard: "Difficile" }) }),
+    Object.freeze({
+      key: "dpeRating",
+      label: "DPE",
+      max: 8,
+      scores: Object.freeze({ A: 8, B: 8, C: 8, D: 6, E: 3, F: 0, G: 0 }),
+      labels: Object.freeze({ A: "A", B: "B", C: "C", D: "D", E: "E", F: "F", G: "G" }),
+    }),
+    Object.freeze({
+      key: "rentalDemand",
+      label: "Demande locative",
+      max: 8,
+      scores: Object.freeze({ strong: 8, medium: 4, weak: 0 }),
+      labels: Object.freeze({ strong: "Forte", medium: "Moyenne", weak: "Faible" }),
+    }),
+    Object.freeze({
+      key: "buildingCondition",
+      label: "État de l'immeuble",
+      max: 6,
+      scores: Object.freeze({ good: 6, average: 3, risky: 0 }),
+      labels: Object.freeze({ good: "Bon", average: "Moyen", risky: "Risque" }),
+    }),
+    Object.freeze({
+      key: "majorWorksRisk",
+      label: "Travaux de copropriété",
+      max: 4,
+      scores: Object.freeze({ no: 4, uncertain: 2, yes: 0 }),
+      labels: Object.freeze({ no: "Non", uncertain: "Incertain", yes: "Oui" }),
+    }),
+    Object.freeze({
+      key: "resaleLiquidity",
+      label: "Liquidité revente",
+      max: 4,
+      scores: Object.freeze({ easy: 4, normal: 2, hard: 0 }),
+      labels: Object.freeze({ easy: "Facile", normal: "Normale", hard: "Difficile" }),
+    }),
   ]);
 
   return Object.freeze({ RULESET, riskScoreDefinitions, taxModeConfigs });

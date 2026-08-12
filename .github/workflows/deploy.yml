@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: rentaloc-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install development tooling
+        run: npm ci
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify application
+        run: npm run check && npm run test:e2e
+      - name: Verify production fiscal approval
+        if: github.ref == 'refs/heads/main'
+        run: npm run check:fiscal-approval
+      - name: Stage immutable static artifact
+        run: sh scripts/stage-static-site.sh
+      - name: Deploy exact commit to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=rentaloc --branch=${{ github.head_ref || github.ref_name }} --commit-hash=${{ github.sha }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify deployed shell and security headers
+        run: sh scripts/check-deployment-health.sh "${{ steps.deploy.outputs.deployment-url }}"

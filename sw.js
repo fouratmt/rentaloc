@@ -1,10 +1,10 @@
 const cachePrefix = "rentaloc-";
-const cacheName = `${cachePrefix}v17`;
+const cacheName = `${cachePrefix}v20`;
 const coreAppShell = [
   "./",
   "./index.html",
   "./app.html",
-  "./src/styles.css?v=17",
+  "./src/styles.css?v=20",
   "./src/install.js",
   "./src/rules.js",
   "./src/schema.js",
@@ -23,6 +23,7 @@ const scopedUrl = (path) => new URL(path, self.registration.scope).toString();
 const scopeUrl = new URL(self.registration.scope);
 const landingDocumentUrl = scopedUrl("./index.html");
 const appDocumentUrl = scopedUrl("./app.html");
+const requiredOfflineDocuments = new Set([landingDocumentUrl, appDocumentUrl]);
 
 function offlineDocumentFor(url) {
   return url.pathname.endsWith("/app.html") ? appDocumentUrl : landingDocumentUrl;
@@ -36,13 +37,28 @@ function isCacheable(response) {
   return response && response.ok && response.type !== "opaque";
 }
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(cacheName)
-      .then((cache) => cache.addAll(coreAppShell.map(scopedUrl)))
-      .then(() => self.skipWaiting()),
+async function precacheAppShell() {
+  const cache = await caches.open(cacheName);
+  const urls = coreAppShell.map(scopedUrl);
+  const results = await Promise.allSettled(
+    urls.map(async (url) => {
+      const response = await fetch(url, { cache: "reload" });
+      if (!isCacheable(response)) throw new Error(`Uncacheable app-shell response: ${url}`);
+      await cache.put(url, response);
+      return url;
+    }),
   );
+  const cachedUrls = new Set(results.filter((result) => result.status === "fulfilled").map((result) => result.value));
+  const missingRequiredDocument = [...requiredOfflineDocuments].find((url) => !cachedUrls.has(url));
+  if (missingRequiredDocument) throw new Error(`Required offline document unavailable: ${missingRequiredDocument}`);
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(precacheAppShell());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -51,9 +67,7 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((names) =>
         Promise.all(
-          names
-            .filter((name) => name.startsWith(cachePrefix) && name !== cacheName)
-            .map((name) => caches.delete(name)),
+          names.filter((name) => name.startsWith(cachePrefix) && name !== cacheName).map((name) => caches.delete(name)),
         ),
       )
       .then(() => self.clients.claim()),
@@ -99,6 +113,15 @@ self.addEventListener("fetch", (event) => {
         caches.open(cacheName).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request)),
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        return (
+          cached ||
+          new Response("Cette ressource RentaLoc n'est pas disponible hors connexion.", {
+            status: 503,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+          })
+        );
+      }),
   );
 });

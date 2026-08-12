@@ -4,7 +4,6 @@
   if (typeof module === "object" && module.exports) module.exports = schema;
   root.RentaLocSchema = schema;
 })(typeof globalThis !== "undefined" ? globalThis : this, function createSchema({ RULESET }) {
-
   const moneyMax = RULESET.validation.monetaryValueMaximum;
   const defaults = Object.freeze({
     purchasePrice: 120000,
@@ -56,12 +55,31 @@
   });
 
   const monetaryFields = [
-    "purchasePrice", "agencyFees", "renovationWorks", "furnitureCost", "otherUpfrontCosts",
-    "monthlyRent", "tenantCharges", "recoverableOperatingExpenses", "nonRecoverableCharges",
-    "taxeFonciere", "recoverableTaxeOrdures", "landlordInsurance", "maintenanceReserve",
-    "accountingCost", "cfe", "relocationReserve", "otherAnnualCosts", "downPayment", "bankFees",
-    "depreciationDeduction", "deductibleReserveExpenses", "otherHouseholdRentalReceipts",
-    "priorYearGrossRentalReceipts", "twoYearsAgoGrossRentalReceipts", "householdActivityIncome",
+    "purchasePrice",
+    "agencyFees",
+    "renovationWorks",
+    "furnitureCost",
+    "otherUpfrontCosts",
+    "monthlyRent",
+    "tenantCharges",
+    "recoverableOperatingExpenses",
+    "nonRecoverableCharges",
+    "taxeFonciere",
+    "recoverableTaxeOrdures",
+    "landlordInsurance",
+    "maintenanceReserve",
+    "accountingCost",
+    "cfe",
+    "relocationReserve",
+    "otherAnnualCosts",
+    "downPayment",
+    "bankFees",
+    "depreciationDeduction",
+    "deductibleReserveExpenses",
+    "otherHouseholdRentalReceipts",
+    "priorYearGrossRentalReceipts",
+    "twoYearsAgoGrossRentalReceipts",
+    "householdActivityIncome",
     "manualAnnualTax",
   ];
 
@@ -140,12 +158,20 @@
         return;
       }
       if (definition.minExclusive !== undefined && value <= definition.minExclusive) {
-        errors.push({ field, code: "too-small", message: `${label} doit être supérieur à ${definition.minExclusive}.` });
+        errors.push({
+          field,
+          code: "too-small",
+          message: `${label} doit être supérieur à ${definition.minExclusive}.`,
+        });
       } else if (definition.min !== undefined && value < definition.min) {
         errors.push({ field, code: "too-small", message: `${label} doit être supérieur ou égal à ${definition.min}.` });
       }
       if (definition.max !== undefined && value > definition.max) {
-        errors.push({ field, code: "too-large", message: `${label} ne peut pas dépasser ${definition.max.toLocaleString("fr-FR")}.` });
+        errors.push({
+          field,
+          code: "too-large",
+          message: `${label} ne peut pas dépasser ${definition.max.toLocaleString("fr-FR")}.`,
+        });
       }
       if (definition.integer && !Number.isInteger(value)) {
         errors.push({ field, code: "not-integer", message: `${label} doit être un nombre entier.` });

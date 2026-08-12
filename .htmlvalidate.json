@@ -1,0 +1,16 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "attribute-boolean-style": "off",
+    "aria-label-misuse": "off",
+    "doctype-style": ["error", { "style": "lowercase" }],
+    "element-permitted-content": "off",
+    "long-title": "off",
+    "no-inline-style": "off",
+    "prefer-native-element": "off",
+    "tel-non-breaking": "off",
+    "unique-landmark": "off",
+    "void-style": ["error", { "style": "selfclosing" }],
+    "wcag/h32": "off"
+  }
+}

@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 
 # Environment variables
@@ -22,3 +21,10 @@ Thumbs.db
 # Logs
 npm-debug.log*
 yarn-debug.log*
+
+# Browser test artifacts
+playwright-report/
+test-results/
+
+# Staged deployment artifact
+dist/

@@ -2,7 +2,15 @@
   "provenance": {
     "method": "Independent arithmetic fixtures derived from the documented formulas",
     "createdOn": "2026-08-07",
-    "professionalApproval": "pending"
+    "rulesetVersion": "2026.1",
+    "professionalApproval": {
+      "status": "pending",
+      "reviewerName": "",
+      "reviewerRole": "",
+      "reviewedOn": "",
+      "evidence": "",
+      "notes": ""
+    }
   },
   "scenarios": [
     {
@@ -74,6 +82,254 @@
         "monthlyCashFlowAfterTax": 166.66666666666666,
         "cashInvested": 20000
       }
+    },
+    {
+      "name": "LMNP real simplified cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "taxMode": "lmnp-real",
+        "marginalTaxRate": 30,
+        "depreciationDeduction": 2500
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "preDepreciationProfit": 12000,
+        "appliedDepreciation": 2500,
+        "taxableProfit": 9500,
+        "estimatedTax": 4617,
+        "monthlyCashFlowAfterTax": 615.25
+      }
+    },
+    {
+      "name": "long-term Micro-BIC cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "taxMode": "micro-bic",
+        "rentalUse": "long-term",
+        "marginalTaxRate": 30
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "taxableProfit": 6000,
+        "estimatedTax": 2916,
+        "monthlyCashFlowAfterTax": 757
+      }
+    },
+    {
+      "name": "unclassified tourism Micro-BIC cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "taxMode": "micro-bic",
+        "rentalUse": "tourist-unclassified",
+        "marginalTaxRate": 30
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "taxableProfit": 8400,
+        "estimatedTax": 4082.4,
+        "monthlyCashFlowAfterTax": 659.8
+      }
+    },
+    {
+      "name": "classified tourism Micro-BIC cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "taxMode": "micro-bic",
+        "rentalUse": "tourist-classified",
+        "marginalTaxRate": 30
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "taxableProfit": 6000,
+        "estimatedTax": 2916,
+        "monthlyCashFlowAfterTax": 757
+      }
+    },
+    {
+      "name": "micro-foncier cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "rentalType": "unfurnished",
+        "taxMode": "micro-foncier",
+        "marginalTaxRate": 30
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "taxableProfit": 8400,
+        "estimatedTax": 3964.8,
+        "monthlyCashFlowAfterTax": 669.6
+      }
+    },
+    {
+      "name": "real property-income cash purchase",
+      "overrides": {
+        "purchasePrice": 100000,
+        "notaryRate": 0,
+        "agencyFees": 0,
+        "renovationWorks": 0,
+        "furnitureCost": 0,
+        "otherUpfrontCosts": 0,
+        "monthlyRent": 1000,
+        "tenantCharges": 0,
+        "vacancyDays": 0,
+        "recoverableOperatingExpenses": 0,
+        "nonRecoverableCharges": 0,
+        "taxeFonciere": 0,
+        "recoverableTaxeOrdures": 0,
+        "landlordInsurance": 0,
+        "maintenanceReserve": 0,
+        "accountingCost": 0,
+        "cfe": 0,
+        "relocationReserve": 0,
+        "otherAnnualCosts": 0,
+        "financingMethod": "cash",
+        "bankFees": 0,
+        "rentalType": "unfurnished",
+        "taxMode": "foncier-real",
+        "marginalTaxRate": 30
+      },
+      "expected": {
+        "taxableReceipts": 12000,
+        "taxableProfit": 12000,
+        "estimatedTax": 5664,
+        "monthlyCashFlowAfterTax": 528
+      }
+    },
+    {
+      "name": "long-term Micro-BIC one prior-year threshold crossing remains eligible",
+      "overrides": {
+        "taxMode": "micro-bic",
+        "rentalUse": "long-term",
+        "rentalActivityYear": 3,
+        "priorYearGrossRentalReceipts": 83601,
+        "twoYearsAgoGrossRentalReceipts": 83600
+      },
+      "expected": {},
+      "expectedValidationCodes": []
+    },
+    {
+      "name": "long-term Micro-BIC two consecutive threshold crossings are rejected",
+      "overrides": {
+        "taxMode": "micro-bic",
+        "rentalUse": "long-term",
+        "rentalActivityYear": 3,
+        "priorYearGrossRentalReceipts": 83601,
+        "twoYearsAgoGrossRentalReceipts": 83601
+      },
+      "expected": {},
+      "expectedValidationCodes": ["micro-bic-ineligible"]
+    },
+    {
+      "name": "unclassified tourism Micro-BIC two consecutive threshold crossings are rejected",
+      "overrides": {
+        "taxMode": "micro-bic",
+        "rentalUse": "tourist-unclassified",
+        "rentalActivityYear": 3,
+        "priorYearGrossRentalReceipts": 15001,
+        "twoYearsAgoGrossRentalReceipts": 15001
+      },
+      "expected": {},
+      "expectedValidationCodes": ["micro-bic-ineligible"]
     }
   ]
 }

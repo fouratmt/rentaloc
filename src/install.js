@@ -3,18 +3,77 @@
   const installOverlay = document.querySelector("#installOverlay");
   const installCloseButton = document.querySelector("#installCloseButton");
   const installInstructions = document.querySelector("#installInstructions");
+  const networkStatus = document.querySelector("#networkStatus");
+  const updateButton = document.querySelector("#updateButton");
+  const updateStatus = document.querySelector("#updateStatus");
   let deferredInstallPrompt = null;
+  let serviceWorkerRegistration = null;
+  let updateRequested = false;
+
+  function updateConnectivityStatus() {
+    const online = navigator.onLine !== false;
+    if (networkStatus) {
+      networkStatus.textContent = online ? "En ligne" : "Hors connexion — calculs et sauvegardes locales disponibles";
+    }
+    document.body.classList.toggle("is-offline", !online);
+  }
+
+  function exposeWaitingUpdate(registration) {
+    if (!updateButton || !registration.waiting || !navigator.serviceWorker.controller) return;
+    serviceWorkerRegistration = registration;
+    updateButton.hidden = false;
+    if (updateStatus) updateStatus.textContent = "Une nouvelle version de RentaLoc est prête.";
+  }
+
+  function watchForUpdates(registration) {
+    serviceWorkerRegistration = registration;
+    exposeWaitingUpdate(registration);
+    registration.addEventListener("updatefound", () => {
+      const installingWorker = registration.installing;
+      if (!installingWorker) return;
+      installingWorker.addEventListener("statechange", () => {
+        if (installingWorker.state === "installed") exposeWaitingUpdate(registration);
+      });
+    });
+  }
+
+  window.addEventListener("online", updateConnectivityStatus);
+  window.addEventListener("offline", updateConnectivityStatus);
+  updateConnectivityStatus();
 
   if ("serviceWorker" in navigator && window.isSecureContext) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
         .register("./sw.js", { scope: "./", updateViaCache: "none" })
-        .then((registration) => registration.update())
+        .then((registration) => {
+          watchForUpdates(registration);
+          return registration.update();
+        })
         .catch(() => {
-          // Both pages remain usable online if service workers are unavailable.
+          if (updateStatus) updateStatus.textContent = "La vérification des mises à jour est indisponible.";
         });
     });
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (updateRequested) window.location.reload();
+    });
   }
+
+  updateButton?.addEventListener("click", () => {
+    const guard = new CustomEvent("rentaloc:before-update", { cancelable: true });
+    if (!window.dispatchEvent(guard)) return;
+    const waitingWorker = serviceWorkerRegistration?.waiting;
+    if (!waitingWorker) {
+      if (updateStatus) updateStatus.textContent = "La nouvelle version n'est plus disponible. Réessayez plus tard.";
+      updateButton.hidden = true;
+      return;
+    }
+    updateRequested = true;
+    updateButton.disabled = true;
+    updateButton.textContent = "Actualisation…";
+    if (updateStatus) updateStatus.textContent = "Installation de la nouvelle version.";
+    waitingWorker.postMessage({ type: "SKIP_WAITING" });
+  });
 
   if (!installButton || !installOverlay || !installCloseButton || !installInstructions) return;
 

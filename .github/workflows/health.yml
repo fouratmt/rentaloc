@@ -1,0 +1,20 @@
+name: Production health
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-get-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check public shell and headers without user data
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: sh scripts/check-deployment-health.sh "$PRODUCTION_URL"

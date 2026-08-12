@@ -17,7 +17,10 @@
     <meta property="og:image" content="assets/og.png" />
     <meta property="og:image:width" content="1734" />
     <meta property="og:image:height" content="907" />
-    <meta property="og:image:alt" content="RentaLoc transforme les chiffres d'une annonce en rendement net, cash-flow et risques." />
+    <meta
+      property="og:image:alt"
+      content="RentaLoc transforme les chiffres d'une annonce en rendement net, cash-flow et risques."
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#08795f" />
     <meta name="color-scheme" content="light" />
@@ -29,7 +32,7 @@
     <link rel="manifest" href="site.webmanifest" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png" />
-    <link rel="stylesheet" href="src/styles.css?v=17" />
+    <link rel="stylesheet" href="src/styles.css?v=20" />
   </head>
   <body class="landing-page">
     <header class="site-header">
@@ -43,6 +46,13 @@
         <a href="#faq">Questions</a>
       </nav>
       <div class="header-actions">
+        <div class="runtime-status" aria-label="État de l'application">
+          <span id="networkStatus" role="status" aria-live="polite">En ligne</span>
+          <button class="update-button" id="updateButton" type="button" hidden>
+            Nouvelle version disponible — actualiser
+          </button>
+          <span class="sr-only" id="updateStatus" role="status" aria-live="polite"></span>
+        </div>
         <button class="install-button" id="installButton" type="button" hidden>Installer l'app</button>
         <a class="header-cta" href="app.html">Tester un bien</a>
       </div>
@@ -54,9 +64,8 @@
           <p class="hero-kicker"><span></span> Simulateur d'investissement locatif en France</p>
           <h1 id="hero-title">Voyez ce que l'annonce <em>ne vous dit pas.</em></h1>
           <p class="hero-lead">
-            Passez du rendement affiché à la rentabilité réelle. RentaLoc intègre les charges,
-            le crédit, la fiscalité, la vacance et les risques pour vous dire si un bien mérite
-            vraiment votre temps.
+            Passez du rendement affiché à la rentabilité réelle. RentaLoc intègre les charges, le crédit, la fiscalité,
+            la vacance et les risques pour vous dire si un bien mérite vraiment votre temps.
           </p>
           <div class="hero-actions">
             <a class="cta-primary" href="app.html">
@@ -99,11 +108,16 @@
             </div>
             <div class="preview-insight">
               <span class="insight-icon" aria-hidden="true">!</span>
-              <p><strong>Le chiffre qui change la décision.</strong> Un rendement brut séduisant peut cacher un effort d'épargne mensuel.</p>
+              <p>
+                <strong>Le chiffre qui change la décision.</strong> Un rendement brut séduisant peut cacher un effort
+                d'épargne mensuel.
+              </p>
             </div>
           </div>
           <div class="floating-proof proof-one"><strong>3 scénarios</strong><span>optimiste · base · stress</span></div>
-          <div class="floating-proof proof-two"><strong>Score sur 100</strong><span>finance + risques du bien</span></div>
+          <div class="floating-proof proof-two">
+            <strong>Score sur 100</strong><span>finance + risques du bien</span>
+          </div>
         </div>
       </section>
 
@@ -119,9 +133,9 @@
           <p class="eyebrow">La rentabilité, sans angle mort</p>
           <h2 id="problem-title">Un « bon rendement » peut devenir une mauvaise affaire.</h2>
           <p>
-            Les annonces parlent de prix et de loyer. Votre compte bancaire, lui, subit aussi les
-            frais de notaire, la copropriété, l'entretien, la vacance, le financement et l'impôt.
-            RentaLoc remet tous ces coûts dans l'équation.
+            Les annonces parlent de prix et de loyer. Votre compte bancaire, lui, subit aussi les frais de notaire, la
+            copropriété, l'entretien, la vacance, le financement et l'impôt. RentaLoc remet tous ces coûts dans
+            l'équation.
           </p>
         </div>
         <div class="comparison-card" aria-label="Comparaison entre rendement affiché et analyse RentaLoc">
@@ -153,7 +167,10 @@
           <article class="feature-card feature-large">
             <span class="feature-number">01</span>
             <h3>Le vrai cash-flow, après tout</h3>
-            <p>Visualisez l'argent qui reste — ou qu'il faudra ajouter — chaque mois après charges, dette et impôt estimé.</p>
+            <p>
+              Visualisez l'argent qui reste — ou qu'il faudra ajouter — chaque mois après charges, dette et impôt
+              estimé.
+            </p>
             <div class="mini-cashflow">
               <span>LOYER</span><i></i><span>CHARGES</span><i></i><span>CRÉDIT</span><i></i><strong>CASH-FLOW</strong>
             </div>
@@ -161,28 +178,41 @@
           <article class="feature-card">
             <span class="feature-number">02</span>
             <h3>Un financement qui colle au projet</h3>
-            <p>Testez apport, taux, durée, assurance et frais bancaires. Comparez aussi l'achat à crédit au comptant.</p>
+            <p>
+              Testez apport, taux, durée, assurance et frais bancaires. Comparez aussi l'achat à crédit au comptant.
+            </p>
           </article>
           <article class="feature-card">
             <span class="feature-number">03</span>
             <h3>La fiscalité n'est plus oubliée</h3>
-            <p>Estimez simplement l'impact du LMNP réel, du micro-BIC, du micro-foncier ou saisissez votre propre hypothèse.</p>
+            <p>
+              Estimez simplement l'impact du LMNP réel, du micro-BIC, du micro-foncier ou saisissez votre propre
+              hypothèse.
+            </p>
           </article>
           <article class="feature-card">
             <span class="feature-number">04</span>
             <h3>Les risques comptent dans la note</h3>
-            <p>DPE, demande locative, état de l'immeuble, travaux de copropriété et liquidité à la revente complètent le score financier.</p>
+            <p>
+              DPE, demande locative, état de l'immeuble, travaux de copropriété et liquidité à la revente complètent le
+              score financier.
+            </p>
           </article>
           <article class="feature-card feature-accent">
             <span class="feature-number">05</span>
             <h3>Stress-testez avant de vous engager</h3>
-            <p>Voyez ce que devient le projet si le loyer baisse, si la vacance double ou si les coûts d'entretien montent.</p>
+            <p>
+              Voyez ce que devient le projet si le loyer baisse, si la vacance double ou si les coûts d'entretien
+              montent.
+            </p>
             <div class="scenario-pills"><span>Optimiste</span><span>Base</span><span>Stress</span></div>
           </article>
           <article class="feature-card">
             <span class="feature-number">06</span>
             <h3>Comparez plusieurs opportunités</h3>
-            <p>Nommez et sauvegardez vos simulations dans votre navigateur pour retrouver chaque bien sans ressaisie.</p>
+            <p>
+              Nommez et sauvegardez vos simulations dans votre navigateur pour retrouver chaque bien sans ressaisie.
+            </p>
           </article>
         </div>
       </section>
@@ -191,13 +221,34 @@
         <div class="how-copy">
           <p class="eyebrow">Une réponse en trois temps</p>
           <h2 id="how-title">De l'annonce au verdict, en quelques minutes.</h2>
-          <p>RentaLoc est assez simple pour un premier achat et assez complet pour comparer sérieusement plusieurs projets.</p>
+          <p>
+            RentaLoc est assez simple pour un premier achat et assez complet pour comparer sérieusement plusieurs
+            projets.
+          </p>
           <a class="text-link" href="app.html">Commencer l'analyse <span aria-hidden="true">→</span></a>
         </div>
         <ol class="steps-list">
-          <li><span>1</span><div><h3>Copiez les chiffres du bien</h3><p>Prix, loyer, travaux, charges et taxe foncière.</p></div></li>
-          <li><span>2</span><div><h3>Ajoutez votre financement</h3><p>Apport, taux, durée et hypothèses fiscales.</p></div></li>
-          <li><span>3</span><div><h3>Lisez le diagnostic</h3><p>Note, cash-flow, rendement net, alertes et scénarios de sensibilité.</p></div></li>
+          <li>
+            <span>1</span>
+            <div>
+              <h3>Copiez les chiffres du bien</h3>
+              <p>Prix, loyer, travaux, charges et taxe foncière.</p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>Ajoutez votre financement</h3>
+              <p>Apport, taux, durée et hypothèses fiscales.</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>Lisez le diagnostic</h3>
+              <p>Note, cash-flow, rendement net, alertes et scénarios de sensibilité.</p>
+            </div>
+          </li>
         </ol>
       </section>
 
@@ -210,24 +261,59 @@
         <div class="faq-list">
           <details>
             <summary>Est-ce vraiment gratuit ?</summary>
-            <p>Oui. Vous pouvez utiliser le simulateur, enregistrer plusieurs projets et consulter le détail des calculs sans créer de compte.</p>
+            <p>
+              Oui. Vous pouvez utiliser le simulateur, enregistrer plusieurs projets et consulter le détail des calculs
+              sans créer de compte.
+            </p>
           </details>
           <details>
             <summary>Où sont enregistrées mes simulations ?</summary>
-            <p>Elles restent dans le stockage local de votre navigateur. Elles ne sont pas envoyées vers un serveur et restent liées à cet appareil et à ce navigateur.</p>
+            <p>
+              Elles restent dans le stockage local de votre navigateur. Elles ne sont pas envoyées vers un serveur et
+              restent liées à cet appareil et à ce navigateur.
+            </p>
           </details>
           <details>
             <summary>Les calculs fiscaux remplacent-ils un comptable ?</summary>
-            <p>Non. Ils donnent une estimation volontairement simplifiée pour ne pas ignorer l'impôt. Faites valider votre montage final par un professionnel.</p>
+            <p>
+              Non. Ils donnent une estimation volontairement simplifiée pour ne pas ignorer l'impôt. Faites valider
+              votre montage final par un professionnel.
+            </p>
           </details>
           <details>
             <summary>Puis-je comparer plusieurs biens ?</summary>
-            <p>Oui. Donnez un nom à chaque simulation, enregistrez-la, puis rechargez-la pour comparer les hypothèses et les diagnostics.</p>
+            <p>
+              Oui. Donnez un nom à chaque simulation, enregistrez-la, puis rechargez-la pour comparer les hypothèses et
+              les diagnostics.
+            </p>
           </details>
           <details>
             <summary>Est-ce que RentaLoc fonctionne sur mobile ?</summary>
-            <p>Oui. L'interface est adaptée aux petits écrans et peut être installée comme une application. Après la première visite, le calculateur fonctionne aussi hors ligne.</p>
+            <p>
+              Oui. L'interface est adaptée aux petits écrans et peut être installée comme une application. Après la
+              première visite, le calculateur fonctionne aussi hors ligne.
+            </p>
           </details>
+        </div>
+      </section>
+
+      <section class="privacy-notice" id="confidentialite" aria-labelledby="privacy-title">
+        <div>
+          <p class="eyebrow">Confidentialité et limites</p>
+          <h2 id="privacy-title">Vos hypothèses restent dans ce navigateur.</h2>
+        </div>
+        <div class="privacy-notice-copy">
+          <p>
+            RentaLoc n'utilise ni compte, ni serveur de calcul, ni outil d'analyse : les simulations sauvegardées
+            restent dans le stockage local de cet appareil. Vous pouvez supprimer chaque projet dans le simulateur ou
+            tout effacer en une action. Un export JSON explicite permet de sauvegarder ou transférer le portefeuille ;
+            ce fichier contient vos hypothèses financières et doit être conservé de façon confidentielle.
+          </p>
+          <p>
+            Copier ou partager un résumé l'envoie vers l'application que vous choisissez. Les résultats sont des
+            estimations simplifiées, pas un conseil fiscal, juridique ou d'investissement. Faites valider le montage et
+            les règles applicables avant toute décision.
+          </p>
         </div>
       </section>
 
@@ -245,11 +331,18 @@
         <img src="assets/icons/icon.svg" alt="" width="34" height="34" />
         <span>RentaLoc</span>
       </a>
-      <p>Une première analyse claire avant une décision qui vous engage.</p>
+      <p>
+        Une première analyse claire avant une décision qui vous engage. <a href="#confidentialite">Confidentialité</a>
+      </p>
       <a href="app.html">Ouvrir le simulateur ↑</a>
     </footer>
 
-    <dialog class="help-overlay install-overlay" id="installOverlay" aria-labelledby="installTitle" aria-describedby="installDescription">
+    <dialog
+      class="help-overlay install-overlay"
+      id="installOverlay"
+      aria-labelledby="installTitle"
+      aria-describedby="installDescription"
+    >
       <div class="help-dialog install-dialog" role="document">
         <header class="help-header">
           <div>
@@ -258,15 +351,19 @@
           </div>
           <button class="ghost-button help-close" type="button" id="installCloseButton">Fermer</button>
         </header>
-        <p class="sr-only" id="installDescription">Instructions adaptées au navigateur pour installer RentaLoc comme application.</p>
+        <p class="sr-only" id="installDescription">
+          Instructions adaptées au navigateur pour installer RentaLoc comme application.
+        </p>
         <div class="install-body">
           <img src="assets/icons/icon-192.png" alt="" width="72" height="72" />
           <div>
             <p id="installInstructions">
-              Ouvrez le menu de votre navigateur, puis choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».
+              Ouvrez le menu de votre navigateur, puis choisissez « Installer l'application » ou « Ajouter à l'écran
+              d'accueil ».
             </p>
             <p class="install-note">
-              Une fois installée, RentaLoc s'ouvre comme une application et reste utilisable hors connexion après la première visite.
+              Une fois installée, RentaLoc s'ouvre comme une application et reste utilisable hors connexion après la
+              première visite.
             </p>
           </div>
         </div>

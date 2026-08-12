@@ -167,9 +167,25 @@ test("2026 micro-BIC eligibility uses the 83,600 euro threshold and two consecut
     rentalUse: "long-term",
     rentalActivityYear: 3,
   };
-  assert.equal(getMicroBicEligibility({ ...base, priorYearGrossRentalReceipts: 83601, twoYearsAgoGrossRentalReceipts: 83601 }).eligible, false);
-  assert.equal(getMicroBicEligibility({ ...base, priorYearGrossRentalReceipts: 83601, twoYearsAgoGrossRentalReceipts: 83600 }).eligible, true);
-  assert.equal(getMicroBicEligibility({ ...base, rentalActivityYear: 2, priorYearGrossRentalReceipts: 100000, twoYearsAgoGrossRentalReceipts: 100000 }).eligible, true);
+  assert.equal(
+    getMicroBicEligibility({ ...base, priorYearGrossRentalReceipts: 83601, twoYearsAgoGrossRentalReceipts: 83601 })
+      .eligible,
+    false,
+  );
+  assert.equal(
+    getMicroBicEligibility({ ...base, priorYearGrossRentalReceipts: 83601, twoYearsAgoGrossRentalReceipts: 83600 })
+      .eligible,
+    true,
+  );
+  assert.equal(
+    getMicroBicEligibility({
+      ...base,
+      rentalActivityYear: 2,
+      priorYearGrossRentalReceipts: 100000,
+      twoYearsAgoGrossRentalReceipts: 100000,
+    }).eligible,
+    true,
+  );
 });
 
 test("current-year threshold crossing warns but does not invalidate micro-BIC by itself", () => {
@@ -238,14 +254,39 @@ test("financial score boundaries follow the published rubric", () => {
     totalProjectCost: 100000,
   };
   assert.equal(scoreFinancial(metrics), 57);
-  assert.equal(scoreFinancial({ ...metrics, netYieldBeforeTax: 0.055001, debtCoverageRatio: 1.2001, grossYieldTotalCost: 0.070001 }), 70);
-  assert.equal(scoreFinancial({ ...metrics, netYieldBeforeTax: 0, monthlyCashFlowAfterTax: -251, debtCoverageRatio: 0, grossYieldTotalCost: 0, cashInvested: 100001 }), 4);
+  assert.equal(
+    scoreFinancial({
+      ...metrics,
+      netYieldBeforeTax: 0.055001,
+      debtCoverageRatio: 1.2001,
+      grossYieldTotalCost: 0.070001,
+    }),
+    70,
+  );
+  assert.equal(
+    scoreFinancial({
+      ...metrics,
+      netYieldBeforeTax: 0,
+      monthlyCashFlowAfterTax: -251,
+      debtCoverageRatio: 0,
+      grossYieldTotalCost: 0,
+      cashInvested: 100001,
+    }),
+    4,
+  );
 });
 
 test("qualitative risk score covers its best and worst boundaries", () => {
   assert.equal(scoreRiskBreakdown({ ...defaults }).total, 28);
   assert.equal(
-    scoreRiskBreakdown({ ...defaults, dpeRating: "G", rentalDemand: "weak", buildingCondition: "risky", majorWorksRisk: "yes", resaleLiquidity: "hard" }).total,
+    scoreRiskBreakdown({
+      ...defaults,
+      dpeRating: "G",
+      rentalDemand: "weak",
+      buildingCondition: "risky",
+      majorWorksRisk: "yes",
+      resaleLiquidity: "hard",
+    }).total,
     0,
   );
 });
@@ -297,11 +338,16 @@ test("break-even non-convergence is a blocking calculation issue", () => {
 test("independent arithmetic reference scenarios remain stable", () => {
   const fixturePath = path.join(__dirname, "fixtures", "reference-scenarios.json");
   const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
-  assert.equal(fixture.provenance.professionalApproval, "pending");
+  assert.equal(fixture.provenance.professionalApproval.status, "pending");
   fixture.scenarios.forEach((scenario) => {
-    const result = calculate({ ...defaults, ...scenario.overrides });
+    const values = { ...defaults, ...scenario.overrides };
+    const result = calculate(values);
     Object.entries(scenario.expected).forEach(([metric, expected]) => {
       closeTo(result.metrics[metric], expected, 1e-6);
     });
+    if (scenario.expectedValidationCodes) {
+      const codes = validateDetails(values).map(({ code }) => code);
+      assert.deepEqual(codes.sort(), scenario.expectedValidationCodes.slice().sort());
+    }
   });
 });
