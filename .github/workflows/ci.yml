@@ -41,3 +41,11 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
       - name: Run browser tests
         run: npm run test:e2e
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build and smoke-test production container
+        run: sh scripts/check-container.sh

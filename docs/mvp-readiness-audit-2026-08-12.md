@@ -12,6 +12,8 @@ The core simulator was functional, well-tested, responsive, offline-capable, and
 
 ## Evidence collected
 
+The numerical counts below describe the audit-time baseline, not the current expanded suite. Current verification results are recorded in CI/output and summarized in the disposition sections.
+
 - `npm run check` passed with 63 tests, 93.73% measured line coverage, 100% function coverage, and 77.97% branch coverage across the measured rules/schema/domain/storage modules.
 - `npm run test:e2e` passed six Chromium journeys: first calculation/save, comparison, 320 px reflow, install guidance, offline landing/app navigation, and controlled service-worker activation.
 - Rendered desktop inspection showed no console warnings or errors.
@@ -58,6 +60,14 @@ Disposition implemented after the audit:
 
 Residual external setup: repository/Cloudflare owners must create the Pages project, add least-privilege secrets, protect the GitHub production environment, and configure the production domain.
 
+Post-audit runtime update:
+
+- `Dockerfile` packages the unchanged static PWA in pinned Nginx, running as the unprivileged `nginx` user on port 8080;
+- `compose.yaml` provides a read-only, capability-dropped local/self-hosted runtime with a health check;
+- Nginx owns container security/cache/MIME behavior while `_headers` remains the Cloudflare equivalent;
+- `npm run check:container` and CI build and smoke-test the image;
+- there is no container registry or production container host yet, so Cloudflare Pages remains the configured deployment path.
+
 ## P1 — important but not launch-blocking
 
 - [x] Added strict ≤1 MiB JSON export/import, explicit replacement confirmation, and bulk deletion.
@@ -100,6 +110,7 @@ Remaining risks are incomplete human accessibility/physical Safari/usability evi
 - [ ] Obtain and record qualified approval of the fiscal fixtures.
 - [x] Select a production host and define a reproducible exact-artifact workflow.
 - [x] Define repository-owned security and cache headers.
+- [x] Add a reproducible, non-root Docker runtime and container smoke gate.
 - [ ] Configure Cloudflare/GitHub secrets, environments, domain, and branch protections.
 - [ ] Create a clean release commit and obtain green CI/security/deployment checks.
 - [ ] Verify preview headers, MIME types, caching, privacy boundary, installability, and complete user journey.

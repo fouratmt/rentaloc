@@ -141,13 +141,14 @@ test("production deployment is gated and supplies static security headers", () =
 
 test("major architectural choices have accepted ADRs", () => {
   const adrIndex = read("docs/adr/README.md");
-  ["0001", "0002", "0003", "0004", "0005"].forEach((id) => assert.match(adrIndex, new RegExp(id)));
+  ["0001", "0002", "0003", "0004", "0005", "0006"].forEach((id) => assert.match(adrIndex, new RegExp(id)));
   [
     "docs/adr/0001-client-only-local-persistence.md",
     "docs/adr/0002-simplified-tax-estimates.md",
     "docs/adr/0003-versioned-score-policy.md",
     "docs/adr/0004-no-product-analytics-by-default.md",
     "docs/adr/0005-external-data-acceptance-gate.md",
+    "docs/adr/0006-docker-runtime-packaging.md",
   ].forEach((filePath) => {
     const adr = read(filePath);
     assert.match(adr, /Status: Accepted/);
@@ -197,4 +198,31 @@ test("browser E2E checks are pinned and run in CI", () => {
   assert.match(ci, /playwright install --with-deps chromium/);
   assert.match(ci, /npm run test:e2e/);
   assert.match(playwrightConfig, /serviceWorkers: "allow"/);
+});
+
+test("the Docker runtime is non-root, health-checked, hardened, and covered by CI", () => {
+  const dockerfile = read("Dockerfile");
+  const compose = read("compose.yaml");
+  const nginx = read("docker/nginx.conf");
+  const nginxHeaders = read("docker/security-headers.conf");
+  const containerCheck = read("scripts/check-container.sh");
+  const ci = read(".github/workflows/ci.yml");
+
+  assert.match(dockerfile, /FROM nginx:[\w.-]+@sha256:[a-f0-9]{64}/);
+  assert.match(dockerfile, /USER nginx/);
+  assert.match(dockerfile, /EXPOSE 8080/);
+  assert.match(dockerfile, /HEALTHCHECK/);
+  assert.match(compose, /read_only: true/);
+  assert.match(compose, /no-new-privileges:true/);
+  assert.match(compose, /cap_drop:[\s\S]*- ALL/);
+  assert.match(nginx, /listen 8080/);
+  assert.match(nginx, /application\/manifest\+json webmanifest/);
+  assert.match(nginx, /include \/etc\/nginx\/security-headers\.conf/);
+  assert.match(nginxHeaders, /Content-Security-Policy/);
+  assert.doesNotMatch(nginx, /\$request["'\s]/);
+  assert.doesNotMatch(nginx, /\$http_referer|\$http_user_agent/);
+  assert.doesNotMatch(nginxHeaders, /Strict-Transport-Security/);
+  assert.match(containerCheck, /docker build/);
+  assert.match(containerCheck, /docker inspect/);
+  assert.match(ci, /check-container\.sh/);
 });

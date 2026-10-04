@@ -1,6 +1,6 @@
 # RentaLoc threat model
 
-Last reviewed: **2026-08-10**
+Last reviewed: **2026-08-12**
 
 ## Scope and assets
 
@@ -16,6 +16,7 @@ RentaLoc is a client-only static PWA. Assets to protect are simulation values, p
 | DOM rendering                  | Project names, IDs, warnings, generated labels         | Prefer `textContent`; where templates are used, escape every dynamic attribute/text value. Never use imported HTML.                                                            |
 | Clipboard/Web Share            | Generated financial summary                            | Include only the explicit report, require a user gesture, show success/failure, and warn that the receiving app leaves RentaLoc’s local boundary.                              |
 | Service worker/cache           | Network responses and cached app shell                 | Restrict handling to same-origin scope, cache only successful non-opaque responses, use versioned caches, clean old owned caches, and provide deterministic offline fallbacks. |
+| Docker/Nginx runtime           | HTTP requests, container image, platform proxy         | Digest-pin the base, copy only public assets, run non-root/read-only with no capabilities, minimize logs, verify headers/MIME/health, terminate TLS/HSTS externally.           |
 | Future external data/analytics | Third-party responses and outbound events              | Apply ADR 0004/0005; no simulation values in telemetry, validate/source/date data, handle stale/unavailable responses, and review CSP/connect destinations.                    |
 
 ## Principal threats and mitigations
@@ -25,6 +26,7 @@ RentaLoc is a client-only static PWA. Assets to protect are simulation values, p
 - **Resource exhaustion:** oversized project arrays, names, IDs, numeric values, or files could freeze the page or exceed quota. Storage caps projects and field sizes; import rejects files over 1 MiB before parsing and revalidates the complete versioned envelope before any write.
 - **Calculation manipulation:** DOM constraints can be bypassed. Runtime schema/domain validation, finite/range checks, enum checks, and calculation-issue gates protect save/copy and interpretation.
 - **Sensitive-data disclosure:** URL state, analytics, console/error payloads, or automatic sharing could expose assumptions. None are enabled; export/share must be explicit and diagnostics must use technical categories only.
+- **Runtime logs:** request URLs could become a future disclosure path. The current app never places simulation data in URLs, and Nginx logs only method plus normalized path—no query string, referrer, or user agent.
 - **Cache poisoning/stale code:** a compromised same-origin response or partial update could mix versions. Same-origin scope checks, successful-response checks, cache versioning, controlled updates, and deployment headers reduce the risk; service-worker integration tests remain required by TR-02.
 - **Data loss:** browser clearing, corruption, quota, destructive actions, or update refresh can discard work. Versioned recovery, explicit export/import, confirmation before replacement/bulk deletion, transactional writes, and dirty-state guards reduce this risk.
 

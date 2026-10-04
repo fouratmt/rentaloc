@@ -26,6 +26,18 @@ test-e2e:
 release-check:
     npm run release:check
 
+# Build and smoke-test the production container.
+check-container:
+    npm run check:container
+
+# Build and start the containerized app.
+docker-up:
+    npm run docker:up
+
+# Stop the containerized app.
+docker-down:
+    npm run docker:down
+
 # Stage the static Cloudflare Pages artifact.
 stage-site:
     sh scripts/stage-static-site.sh

@@ -1,6 +1,12 @@
 # RentaLoc Architecture
 
-RentaLoc is a build-free, client-only static PWA. Financial inputs are processed locally and saved only in browser storage.
+RentaLoc is a client-only static PWA packaged as a production Nginx container. Financial inputs are processed locally and saved only in browser storage; containerization adds static delivery, not a backend.
+
+## Runtime and deployment boundaries
+
+`Dockerfile` copies the committed browser assets into a pinned Nginx Alpine image. Nginx listens on port 8080 as its unprivileged user, emits the CSP/privacy/cache headers, and exposes `/app.html` as the container health check. `compose.yaml` publishes port 8000 by default and hardens the process with a read-only root filesystem, a small `/tmp` tmpfs, dropped capabilities, and `no-new-privileges`.
+
+The image is the canonical portable runtime artifact. Cloudflare Pages remains the repository's configured managed-static delivery path and uses `_headers`; there is not yet a container registry publication or container-based production orchestrator. TLS and HSTS are supplied by the external platform/reverse proxy: Cloudflare's `_headers` includes HSTS, while local plain-HTTP Docker intentionally does not advertise HSTS.
 
 ## Page boundaries
 
@@ -65,4 +71,4 @@ The shared install controller announces online/offline state and watches registr
 
 ## Verification boundaries
 
-`just check` syntax-checks every executable file, runs Node's test runner with coverage gates, validates schema-to-form coverage and app-shell assets, and fails when the fiscal review date expires. The pinned browser matrix covers Chromium and desktop/mobile WebKit; deterministic service-worker lifecycle coverage remains Chromium-only. Fiscal golden fixtures still require approval by a qualified French tax professional. Browser and assistive-technology evidence boundaries are tracked in `docs/browser-compatibility-evidence.md` and `docs/accessibility-audit.md`.
+`just check` syntax-checks every executable file, runs Node's test runner with coverage gates, validates schema-to-form coverage and app-shell assets, and fails when the fiscal review date expires. `npm run check:container` separately builds and smoke-tests the non-root image, headers, manifest MIME type, and public shells; CI runs both gates. The pinned browser matrix covers Chromium and desktop/mobile WebKit; deterministic service-worker lifecycle coverage remains Chromium-only. Fiscal golden fixtures still require approval by a qualified French tax professional. Browser and assistive-technology evidence boundaries are tracked in `docs/browser-compatibility-evidence.md` and `docs/accessibility-audit.md`.

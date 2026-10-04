@@ -4,10 +4,10 @@ RentaLoc produces consequential financial estimates. Changes should stay small, 
 
 ## Development workflow
 
-1. Use Node 22 and run `npm install` from the repository root.
+1. Use Node 22 and run `npm install` from the repository root. Install Docker when changing runtime packaging or HTTP behavior.
 2. Create a focused branch and describe the user-visible behavior or risk being addressed.
 3. Add or update tests before treating the implementation as complete.
-4. Run `npm run check`. Use `npm run format` only for files intentionally included in the change.
+4. Run `npm run check`. Run `npm run check:container` for Docker, static-serving, header, MIME, or cache changes. Use `npm run format` only for files intentionally included in the change.
 5. Update user documentation, the fiscal source ledger, and `docs/progression-shell-fr.md` when their claims or status change.
 
 Do not mix unrelated refactoring with calculation or rule changes. Never add a network request containing simulation inputs without an explicit privacy and threat-model review.
@@ -20,6 +20,7 @@ Every review should verify:
 - keyboard and mobile behavior for UI changes;
 - schema migration and recovery behavior for persisted-data changes;
 - cache version and offline-shell impact for changed runtime assets;
+- Docker non-root/read-only compatibility and parity between Nginx headers and Cloudflare `_headers` for runtime-serving changes;
 - dated official sources and independent expected results for fiscal/regulatory changes;
 - that copied, exported, shared, logged, or monitored data excludes unnecessary financial inputs.
 

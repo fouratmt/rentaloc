@@ -9,6 +9,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - Saves multiple simulations locally, compares them, and supports explicit JSON backup/restore and bulk deletion.
 - Includes an in-app guide for formulas and calculation assumptions.
 - Works offline after the first load through the service worker.
+- Ships as a hardened, non-root Nginx container for reproducible local or self-hosted operation.
 
 ## Product Notes
 
@@ -24,7 +25,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - Major architectural choices are indexed in [`docs/adr/README.md`](docs/adr/README.md).
 - Trust boundaries and security review triggers are documented in [`docs/threat-model.md`](docs/threat-model.md).
 - The latest MVP release audit is [`docs/mvp-readiness-audit-2026-08-12.md`](docs/mvp-readiness-audit-2026-08-12.md).
-- Cloudflare Pages deployment, production approval, and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
+- Docker is the canonical runtime packaging; Cloudflare Pages remains the configured managed-static deployment path. Production approval and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
 
 ## Structure
 
@@ -39,12 +40,28 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - `src/styles.css`: responsive layout.
 - `site.webmanifest`: PWA installation metadata.
 - `sw.js`: offline app cache.
+- `Dockerfile`, `compose.yaml`, and `docker/nginx.conf`: production container, local orchestration, security headers, cache rules, and health check.
 - `assets/icons/`: installation icons.
 - `tests/`: domain, schema, persistence, accessibility-structure, manifest, and app-shell checks.
 
-## Prerequisites and local checks
+## Run with Docker
 
-The project has no build step or runtime dependency. It supports Node.js 22 or newer (pinned to the Node 22 release line in `.node-version`) and Python 3.11 or newer for the local static server. `just` 1.25 or newer is optional and provides short aliases for the standard npm commands.
+Docker 29+ with Compose is the shortest path to the production-equivalent runtime:
+
+```sh
+docker compose up --build --detach
+docker compose ps
+```
+
+Open `http://localhost:8000` or `http://localhost:8000/app.html`. Change the host port with `RENTALOC_PORT=8080 docker compose up --build --detach`. Stop it with `docker compose down`.
+
+The image serves only committed static assets, listens on container port 8080 as the unprivileged `nginx` user, exposes a Docker health check, and is run by Compose with a read-only filesystem, all Linux capabilities dropped, and `no-new-privileges`. TLS/HSTS must terminate at the platform or reverse proxy; the container supplies the remaining security and cache headers. Access logs omit query strings, referrers, and user agents.
+
+`npm run check:container` builds the image, starts an isolated container on `127.0.0.1:18080`, verifies shell content, manifest MIME type, security headers, and non-root configuration, then removes the test container.
+
+## Contributor checks
+
+The browser application itself still has no compile/bundle step or server-side runtime. Contributor tooling supports Node.js 22 or newer (pinned in `.node-version`); Python 3.11+ is used only by the lightweight local/E2E server. `just` 1.25+ is optional.
 
 ```sh
 npm install
@@ -52,12 +69,14 @@ npm run check
 npm run serve
 npm run test:e2e:install # once per machine
 npm run test:e2e
+npm run check:container
 ```
 
 The committed lockfile must be updated whenever development tooling is added or changed. Contributors with `just` can run the equivalent commands:
 
 ```sh
 just check
+just check-container
 just serve
 ```
 
