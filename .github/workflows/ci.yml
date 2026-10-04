@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@v4
       - name: Install development tooling
         run: npm ci
       - name: Audit development dependencies
