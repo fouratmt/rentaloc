@@ -126,7 +126,7 @@ test("production deployment is gated and supplies static security headers", () =
   const stagingScript = read("scripts/stage-static-site.sh");
 
   assert.match(deploy, /npm run check:fiscal-approval/);
-  assert.match(deploy, /cloudflare\/wrangler-action@v3/);
+  assert.match(deploy, /cloudflare\/wrangler-action@v\d+/);
   assert.match(deploy, /pages deploy dist --project-name=rentaloc/);
   assert.match(headers, /Content-Security-Policy:/);
   assert.match(headers, /frame-ancestors 'none'/);

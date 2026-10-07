@@ -218,3 +218,5 @@ When work begins, change its status to **In progress** and link the owner plus i
 - Public health checks default to GitHub Pages and verify shell content and manifest MIME. GitHub Pages does not apply `_headers`; custom CSP/nosniff headers remain a hosting limitation under SP-01. Nginx container checks continue verifying those headers.
 - Enabled the repository Dependency graph to restore Dependency Review. Patched fixable tooling advisories; the one unpatched `braces` advisory has a development-only exception expiring 2026-11-06, documented in `docs/dependency-audit.md`.
 - Grouped future Stylelint/config updates to prevent incompatible peer dependency upgrades. Browser tests now wait for saved/new-project state and blur edited rent before saving; reloads wait for DOM readiness.
+
+Safari CI follow-up: browser scenarios use reduced-motion scrolling to keep scripted clicks stable while switching between input and portfolio panels. The comparison scenario asserts that both saves exist. Verified 20 repeated desktop/mobile Safari comparison runs on 2026-10-07.

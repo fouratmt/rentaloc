@@ -28,6 +28,7 @@ test("saved projects can be compared, sorted, and assigned a baseline", async ({
   await page.locator('[data-field="monthlyRent"]').fill("1100");
   await page.locator('[data-field="monthlyRent"]').press("Tab");
   await page.locator("#saveProjectButton").click();
+  await expect(page.locator("#projectList .project-item")).toHaveCount(2);
 
   await expect(page.locator("#projectComparison")).toBeVisible();
   await expect(page.locator("#comparisonRows tr")).toHaveCount(2);
