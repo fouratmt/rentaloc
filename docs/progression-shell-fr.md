@@ -211,3 +211,10 @@ An item is not **Completed** until, where applicable:
 ## Maintenance rule
 
 When work begins, change its status to **In progress** and link the owner plus issue/branch. When it finishes, move the essential capability into the completed baseline, record evidence, and remove or rewrite superseded gap rows. Review fiscal/regulatory sources at least annually and before every public release.
+
+## 2026-10-07 CI and hosting verification
+
+- Verified the existing public app at <https://fouratmt.github.io/rentaloc/> (GitHub Pages). Cloudflare deployment is now opt-in; its fiscal approval gate is retained.
+- Public health checks default to GitHub Pages and verify shell content and manifest MIME. GitHub Pages does not apply `_headers`; custom CSP/nosniff headers remain a hosting limitation under SP-01. Nginx container checks continue verifying those headers.
+- Enabled the repository Dependency graph to restore Dependency Review. Patched fixable tooling advisories; the one unpatched `braces` advisory has a development-only exception expiring 2026-11-06, documented in `docs/dependency-audit.md`.
+- Grouped future Stylelint/config updates to prevent incompatible peer dependency upgrades. Browser tests now wait for saved/new-project state and blur edited rent before saving; reloads wait for DOM readiness.

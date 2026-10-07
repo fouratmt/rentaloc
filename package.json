@@ -25,7 +25,8 @@
     "docker:up": "docker compose up --build --detach",
     "test": "node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-functions=95 --test-coverage-branches=70 --test tests/*.test.cjs",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium webkit"
+    "test:e2e:install": "playwright install chromium webkit",
+    "audit:dependencies": "node scripts/audit-dependencies.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
@@ -36,5 +37,13 @@
     "prettier": "3.6.2",
     "stylelint": "16.23.1",
     "stylelint-config-standard": "39.0.0"
+  },
+  "overrides": {
+    "markdownlint-cli2": {
+      "smol-toml": "1.9.0"
+    },
+    "micromark-extension-math": {
+      "katex": "0.18.2"
+    }
   }
 }
