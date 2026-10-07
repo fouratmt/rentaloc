@@ -25,7 +25,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - Major architectural choices are indexed in [`docs/adr/README.md`](docs/adr/README.md).
 - Trust boundaries and security review triggers are documented in [`docs/threat-model.md`](docs/threat-model.md).
 - The latest MVP release audit is [`docs/mvp-readiness-audit-2026-08-12.md`](docs/mvp-readiness-audit-2026-08-12.md).
-- The public app is hosted on [GitHub Pages](https://fouratmt.github.io/rentaloc/). Docker is the portable runtime package; Cloudflare Pages deployment is optional and opt-in. Production approval and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
+- The canonical production URL is [fourat.dev/rentaloc](https://fourat.dev/rentaloc/), hosted on GitHub Pages. Docker is the portable runtime package; Cloudflare Pages deployment is optional and opt-in. Domain setup, production approval, and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
 
 ## Structure
 
