@@ -1,11 +1,33 @@
 # Release and rollback runbook
 
-RentaLoc is publicly hosted at <https://fouratmt.github.io/rentaloc/> on GitHub Pages. The repository also provides portable Docker packaging and an optional Cloudflare deployment path:
+RentaLoc's canonical production URL is <https://fourat.dev/rentaloc/> on GitHub Pages. The repository also provides portable Docker packaging and an optional Cloudflare deployment path:
 
 - `Dockerfile` is the canonical self-hosted runtime artifact. It serves the unchanged static PWA through non-root Nginx.
 - `.github/workflows/deploy.yml` deploys the staged static files to the managed Cloudflare Pages project `rentaloc`. Set the repository variable `CLOUDFLARE_PAGES_ENABLED=true` to enable automatic deployments. Non-`main` pushes are previews and `main` is production; manual dispatch also remains available.
 
 No container registry, Kubernetes workload, VM/container production host, or automated image publication is configured yet. Do not describe the Docker image as deployed until one of those paths is selected and verified.
+
+## GitHub Pages custom domain
+
+The `/rentaloc/` project path inherits the custom domain of the account's root
+site, `fouratmt/fouratmt.github.io`.
+
+1. In that root repository's Settings → Pages, enable GitHub Pages with the
+   **GitHub Actions** source, matching its existing Hugo deployment workflow.
+2. Set its custom domain to `fourat.dev` and enable HTTPS when available. Keep
+   the DNS origin pointed at GitHub Pages; the current domain uses Cloudflare
+   as a proxy.
+3. Run the root repository's **Deploy Hugo site to Pages** workflow after
+   enabling Pages and saving the domain.
+4. Keep RentaLoc's own custom-domain field empty. Setting `fourat.dev` directly
+   on `rentaloc` would assign the domain root instead of the required project
+   path. Do not add a `CNAME` file to this repository.
+5. If `PRODUCTION_URL` is set in RentaLoc's Actions variables, set it to
+   `https://fourat.dev/rentaloc`; otherwise the health workflow uses that URL
+   by default. Verify both `/rentaloc/` and `/rentaloc/app.html`, then run
+   **Production health**.
+
+See [GitHub's custom-domain inheritance documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages#using-a-custom-domain-across-multiple-repositories).
 
 ## Local production-equivalent container
 
@@ -24,7 +46,7 @@ Use `RENTALOC_PORT` to change the published port. `npm run check:container` perf
 2. Add `CLOUDFLARE_ACCOUNT_ID` and a least-privilege `CLOUDFLARE_API_TOKEN` with Pages edit access as GitHub Actions secrets.
 3. Create GitHub environments named `preview` and `production`. Protect `production` with a required human reviewer and restrict it to `main`.
 4. Add the production custom domain in Cloudflare, enable HTTPS, and record the canonical URL in the README and release record.
-5. Add the canonical origin, without a trailing slash, as the GitHub Actions repository variable `PRODUCTION_URL`. The health workflow defaults to the existing GitHub Pages URL. Its `github-pages` profile checks the public shell and manifest MIME; GitHub Pages does not apply `_headers` and does not supply custom CSP/nosniff headers. For Cloudflare or another host with those headers, set `PRODUCTION_HEALTH_PROFILE=strict`. Container CI always verifies Nginx security headers.
+5. Add the full canonical base URL, including any project path and without a trailing slash, as the GitHub Actions repository variable `PRODUCTION_URL`. The health workflow defaults to `https://fourat.dev/rentaloc`. Its `github-pages` profile checks the public shell and manifest MIME; GitHub Pages does not apply `_headers` and does not supply custom CSP/nosniff headers. For Cloudflare or another host with those headers, set `PRODUCTION_HEALTH_PROFILE=strict`. Container CI always verifies Nginx security headers.
 6. Enable the repository Dependency graph under Settings → Advanced Security so the Dependency Review workflow can compare pull requests. Review the temporary development-only audit exception in `docs/dependency-audit.md`.
 7. Set `CLOUDFLARE_PAGES_ENABLED=true` only after Cloudflare setup and the fiscal approval requirements are complete. Leave it unset for local-only deployments.
 8. Make CI, container, browser, security, deployment, and production-health checks required/owned. GitHub workflow failure notifications are the initial uptime alert; assign an operational owner. Disable any second Cloudflare Git integration so only the audited workflow deploys.
