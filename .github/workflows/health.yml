@@ -16,5 +16,6 @@ jobs:
       - uses: actions/checkout@v7
       - name: Check public shell and headers without user data
         env:
-          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
-        run: sh scripts/check-deployment-health.sh "$PRODUCTION_URL"
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL || 'https://fouratmt.github.io/rentaloc' }}
+          HEALTH_PROFILE: ${{ vars.PRODUCTION_HEALTH_PROFILE || 'github-pages' }}
+        run: sh scripts/check-deployment-health.sh "$PRODUCTION_URL" "$HEALTH_PROFILE"

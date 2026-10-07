@@ -22,7 +22,7 @@ jobs:
       - name: Install development tooling
         run: npm ci
       - name: Audit development dependencies
-        run: npm audit --audit-level=high
+        run: npm run audit:dependencies
       - name: Run project checks
         run: just check
 
