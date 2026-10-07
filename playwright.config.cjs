@@ -9,6 +9,8 @@ module.exports = defineConfig({
   use: {
     baseURL: "http://127.0.0.1:8000",
     serviceWorkers: "allow",
+    // Avoid clicking while WebKit is still animating a scroll between panels.
+    reducedMotion: "reduce",
     trace: "retain-on-failure",
   },
   webServer: {
