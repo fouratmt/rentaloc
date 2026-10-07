@@ -25,7 +25,7 @@ RentaLoc is a static installable PWA for quickly assessing the profitability of 
 - Major architectural choices are indexed in [`docs/adr/README.md`](docs/adr/README.md).
 - Trust boundaries and security review triggers are documented in [`docs/threat-model.md`](docs/threat-model.md).
 - The latest MVP release audit is [`docs/mvp-readiness-audit-2026-08-12.md`](docs/mvp-readiness-audit-2026-08-12.md).
-- Docker is the canonical runtime packaging; Cloudflare Pages remains the configured managed-static deployment path. Production approval and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
+- The public app is hosted on [GitHub Pages](https://fouratmt.github.io/rentaloc/). Docker is the portable runtime package; Cloudflare Pages deployment is optional and opt-in. Production approval and rollback are documented in [`docs/release-runbook.md`](docs/release-runbook.md). `npm run release:check` deliberately fails until the fiscal fixtures have qualified professional approval.
 
 ## Structure
 
@@ -86,7 +86,7 @@ Then open `http://localhost:8000` for the landing page or `http://localhost:8000
 
 `npm run test:e2e` starts a deterministic local server and runs Chromium, desktop WebKit, and iPhone-profile WebKit. It covers calculation, validation, persistence across reload, project comparison/capacity, JSON portability, dialogs, clipboard feedback, 320 px reflow, and install guidance. Offline navigation and real waiting-worker activation run in Chromium; the required physical Safari/iOS matrix is tracked in [`docs/browser-compatibility-evidence.md`](docs/browser-compatibility-evidence.md). Browser artifacts are retained locally only on failure and are ignored by Git.
 
-`npm run release:check` adds the browser suite and the qualified fiscal-fixture approval gate. It is expected to fail until the external approval described in [`docs/fiscal-fixture-review.md`](docs/fiscal-fixture-review.md) is recorded. Branch pushes deploy Cloudflare Pages previews after repository secrets and environments are configured; production from `main` additionally requires that approval.
+`npm run release:check` adds the browser suite and the qualified fiscal-fixture approval gate. It is expected to fail until the external approval described in [`docs/fiscal-fixture-review.md`](docs/fiscal-fixture-review.md) is recorded. Cloudflare Pages previews run on branch pushes only after `CLOUDFLARE_PAGES_ENABLED=true` and the required secrets/environments are configured; production from `main` additionally requires that approval. Scheduled public health checks default to GitHub Pages and explicitly account for its lack of custom CSP/nosniff response headers. See [`docs/dependency-audit.md`](docs/dependency-audit.md) for the expiring development-only audit exception.
 
 Development-only quality tools are pinned in `package-lock.json`: ESLint for JavaScript, Stylelint for CSS, html-validate for HTML, markdownlint for Markdown, and Prettier for consistent formatting. Run `npm run lint`, `npm run format:check`, or `npm run format` directly when working on a specific quality concern.
 

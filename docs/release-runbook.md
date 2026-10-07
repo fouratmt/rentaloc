@@ -1,9 +1,9 @@
 # Release and rollback runbook
 
-RentaLoc has one portable runtime package and one currently configured deployment path:
+RentaLoc is publicly hosted at <https://fouratmt.github.io/rentaloc/> on GitHub Pages. The repository also provides portable Docker packaging and an optional Cloudflare deployment path:
 
 - `Dockerfile` is the canonical self-hosted runtime artifact. It serves the unchanged static PWA through non-root Nginx.
-- `.github/workflows/deploy.yml` deploys the staged static files to the managed Cloudflare Pages project `rentaloc`. Non-`main` pushes are previews and `main` is production.
+- `.github/workflows/deploy.yml` deploys the staged static files to the managed Cloudflare Pages project `rentaloc`. Set the repository variable `CLOUDFLARE_PAGES_ENABLED=true` to enable automatic deployments. Non-`main` pushes are previews and `main` is production; manual dispatch also remains available.
 
 No container registry, Kubernetes workload, VM/container production host, or automated image publication is configured yet. Do not describe the Docker image as deployed until one of those paths is selected and verified.
 
@@ -18,14 +18,16 @@ docker compose down
 
 Use `RENTALOC_PORT` to change the published port. `npm run check:container` performs the isolated build/runtime smoke test used by CI. The container expects TLS termination and canonical-host redirects from its deployment platform or reverse proxy.
 
-## One-time Cloudflare and repository setup
+## Optional Cloudflare and repository setup
 
 1. Create the `rentaloc` Cloudflare Pages project with Direct Upload.
 2. Add `CLOUDFLARE_ACCOUNT_ID` and a least-privilege `CLOUDFLARE_API_TOKEN` with Pages edit access as GitHub Actions secrets.
 3. Create GitHub environments named `preview` and `production`. Protect `production` with a required human reviewer and restrict it to `main`.
 4. Add the production custom domain in Cloudflare, enable HTTPS, and record the canonical URL in the README and release record.
-5. Add the canonical origin, without a trailing slash, as the GitHub Actions repository variable `PRODUCTION_URL`. Scheduled health checks deliberately fail until this is configured.
-6. Make CI, container, browser, security, deployment, and production-health checks required/owned. GitHub workflow failure notifications are the initial uptime alert; assign an operational owner. Disable any second Cloudflare Git integration so only the audited workflow deploys.
+5. Add the canonical origin, without a trailing slash, as the GitHub Actions repository variable `PRODUCTION_URL`. The health workflow defaults to the existing GitHub Pages URL. Its `github-pages` profile checks the public shell and manifest MIME; GitHub Pages does not apply `_headers` and does not supply custom CSP/nosniff headers. For Cloudflare or another host with those headers, set `PRODUCTION_HEALTH_PROFILE=strict`. Container CI always verifies Nginx security headers.
+6. Enable the repository Dependency graph under Settings → Advanced Security so the Dependency Review workflow can compare pull requests. Review the temporary development-only audit exception in `docs/dependency-audit.md`.
+7. Set `CLOUDFLARE_PAGES_ENABLED=true` only after Cloudflare setup and the fiscal approval requirements are complete. Leave it unset for local-only deployments.
+8. Make CI, container, browser, security, deployment, and production-health checks required/owned. GitHub workflow failure notifications are the initial uptime alert; assign an operational owner. Disable any second Cloudflare Git integration so only the audited workflow deploys.
 
 ## Release checklist
 
