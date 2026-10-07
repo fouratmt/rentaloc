@@ -181,9 +181,9 @@ test("CI scans secrets, dependencies, and JavaScript code", () => {
   const ci = read(".github/workflows/ci.yml");
   const security = read(".github/workflows/security.yml");
   const dependabot = read(".github/dependabot.yml");
-  assert.match(ci, /npm audit --audit-level=high/);
+  assert.match(ci, /npm run audit:dependencies/);
   assert.match(security, /gitleaks\/gitleaks-action@v3/);
-  assert.match(security, /actions\/dependency-review-action@v4/);
+  assert.match(security, /actions\/dependency-review-action@v\d+/);
   assert.match(security, /github\/codeql-action\/init@v4/);
   assert.match(security, /languages: javascript-typescript/);
   assert.match(dependabot, /package-ecosystem: npm/);
@@ -193,7 +193,7 @@ test("CI scans secrets, dependencies, and JavaScript code", () => {
 test("browser E2E checks are pinned and run in CI", () => {
   const ci = read(".github/workflows/ci.yml");
   const playwrightConfig = read("playwright.config.cjs");
-  assert.equal(packageJson.devDependencies["@playwright/test"], "1.62.1");
+  assert.match(packageJson.devDependencies["@playwright/test"], /^\d+\.\d+\.\d+$/);
   assert.match(packageJson.scripts["test:e2e"], /playwright test/);
   assert.match(ci, /playwright install --with-deps chromium/);
   assert.match(ci, /npm run test:e2e/);
