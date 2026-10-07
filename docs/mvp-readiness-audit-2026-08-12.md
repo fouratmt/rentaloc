@@ -76,7 +76,7 @@ Post-audit runtime update:
 - [x] Saved-project persistence is tested across a real browser reload.
 - [x] Advanced fiscal and expense inputs use summarized progressive disclosure with validation-safe focus routing.
 - [~] A moderated usability protocol and pass criteria exist in `docs/usability-test-plan.md`; the human sessions remain to be run.
-- [~] Deployment and hourly GET-only health checks are implemented; activation requires the production URL variable and an alert owner.
+- [~] Deployment checks are implemented. Update on 2026-10-07: hourly public health checks were removed by the owner's decision to retain Cloudflare Bot Fight Mode; no public uptime alert is configured.
 
 ## P2 — intentionally postponed
 

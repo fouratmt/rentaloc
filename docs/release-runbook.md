@@ -25,12 +25,28 @@ site, `fouratmt/fouratmt.github.io`.
 4. Keep RentaLoc's own custom-domain field empty. Setting `fourat.dev` directly
    on `rentaloc` would assign the domain root instead of the required project
    path. Do not add a `CNAME` file to this repository.
-5. If `PRODUCTION_URL` is set in RentaLoc's Actions variables, set it to
-   `https://fourat.dev/rentaloc`; otherwise the health workflow uses that URL
-   by default. Verify both `/rentaloc/` and `/rentaloc/app.html`, then run
-   **Production health**.
+5. The canonical app paths are `/rentaloc/` and `/rentaloc/app.html`. Verify
+   them in a browser when a release requires a public smoke test.
 
 See [GitHub's custom-domain inheritance documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages#using-a-custom-domain-across-multiple-repositories).
+
+## Public monitoring decision
+
+Cloudflare Bot Fight Mode remains enabled by the owner's decision on 2026-10-07.
+It challenges requests from GitHub-hosted runners, so the automatic **Production
+health** workflow has been removed, including both hourly and push-triggered
+checks. There is no scheduled public uptime monitor or uptime alert configured.
+
+CI still verifies lint, unit tests, browser flows, dependency/security scans, and
+the hardened container runtime. The optional Cloudflare Pages deployment retains
+its own candidate-deployment verification. The standalone health script remains
+available for deliberate manual use from a network accepted by the host.
+
+Free Bot Fight Mode cannot be skipped with path-based WAF rules. Reintroducing
+public automated monitoring would require a separate decision about an accepted
+monitor or granular bot exceptions; do not ignore HTTP 403 or substitute an
+origin-only check and report it as public-site health.
+See [Cloudflare's Bot Fight Mode limitations](https://developers.cloudflare.com/bots/get-started/bot-fight-mode/#rules).
 
 ## Local production-equivalent container
 
@@ -49,10 +65,10 @@ Use `RENTALOC_PORT` to change the published port. `npm run check:container` perf
 2. Add `CLOUDFLARE_ACCOUNT_ID` and a least-privilege `CLOUDFLARE_API_TOKEN` with Pages edit access as GitHub Actions secrets.
 3. Create GitHub environments named `preview` and `production`. Protect `production` with a required human reviewer and restrict it to `main`.
 4. Add the production custom domain in Cloudflare, enable HTTPS, and record the canonical URL in the README and release record.
-5. Add the full canonical base URL, including any project path and without a trailing slash, as the GitHub Actions repository variable `PRODUCTION_URL`. The health workflow defaults to `https://fourat.dev/rentaloc`. Its `github-pages` profile checks the public shell and manifest MIME; GitHub Pages does not apply `_headers` and does not supply custom CSP/nosniff headers. For Cloudflare or another host with those headers, set `PRODUCTION_HEALTH_PROFILE=strict`. Container CI always verifies Nginx security headers.
+5. Optional Cloudflare deployment verification checks the candidate's public shell, manifest MIME, and security headers. For manual GitHub Pages checks, the standalone script's `github-pages` profile checks the shell and manifest MIME; GitHub Pages does not apply `_headers` and does not supply custom CSP/nosniff headers. Container CI always verifies Nginx security headers.
 6. Enable the repository Dependency graph under Settings → Advanced Security so the Dependency Review workflow can compare pull requests. Review the temporary development-only audit exception in `docs/dependency-audit.md`.
 7. Set `CLOUDFLARE_PAGES_ENABLED=true` only after Cloudflare setup and the fiscal approval requirements are complete. Leave it unset for local-only deployments.
-8. Make CI, container, browser, security, deployment, and production-health checks required/owned. GitHub workflow failure notifications are the initial uptime alert; assign an operational owner. Disable any second Cloudflare Git integration so only the audited workflow deploys.
+8. Make CI, container, browser, security, and deployment checks required/owned. Workflow failure notifications cover those checks; public uptime monitoring is intentionally disabled as documented above. Disable any second Cloudflare Git integration so only the audited workflow deploys.
 
 ## Release checklist
 
