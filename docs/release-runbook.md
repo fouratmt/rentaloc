@@ -16,7 +16,10 @@ site, `fouratmt/fouratmt.github.io`.
    **GitHub Actions** source, matching its existing Hugo deployment workflow.
 2. Set its custom domain to `fourat.dev` and enable HTTPS when available. Keep
    the DNS origin pointed at GitHub Pages; the current domain uses Cloudflare
-   as a proxy.
+   as a proxy. Use Cloudflare **Full (strict)** once GitHub's certificate is
+   issued. While that certificate is provisioning, **Full** can establish an
+   encrypted origin connection; **Flexible** loops when GitHub enforces HTTPS.
+   Purge cached `/rentaloc/` responses after changing the domain or SSL mode.
 3. Run the root repository's **Deploy Hugo site to Pages** workflow after
    enabling Pages and saving the domain.
 4. Keep RentaLoc's own custom-domain field empty. Setting `fourat.dev` directly
