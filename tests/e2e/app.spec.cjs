@@ -21,9 +21,12 @@ test("saved projects can be compared, sorted, and assigned a baseline", async ({
   await page.goto("/app.html");
   await page.locator("#projectName").fill("Projet prudent");
   await page.locator("#saveProjectButton").click();
+  await expect(page.locator("#projectList")).toContainText("Projet prudent");
   await page.locator("#newProjectButton").click();
+  await expect(page.locator("#projectStatus")).toContainText("Nouvelle simulation prête");
   await page.locator("#projectName").fill("Projet rentable");
   await page.locator('[data-field="monthlyRent"]').fill("1100");
+  await page.locator('[data-field="monthlyRent"]').press("Tab");
   await page.locator("#saveProjectButton").click();
 
   await expect(page.locator("#projectComparison")).toBeVisible();
@@ -40,7 +43,7 @@ test("a saved project survives a real browser reload", async ({ page }) => {
   await page.locator("#projectName").fill("Projet persistant");
   await page.locator('[data-field="monthlyRent"]').fill("875");
   await page.locator("#saveProjectButton").click();
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   await expect(page.locator("#projectList")).toContainText("Projet persistant");
   await page.getByRole("button", { name: /Projet persistant/ }).click();
@@ -102,7 +105,7 @@ test("the 50-project limit refuses a new save without evicting existing projects
       }),
     );
   });
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   await page.locator("#projectName").fill("Projet 51");
   await page.locator("#saveProjectButton").click();
@@ -161,7 +164,7 @@ test("a real waiting service worker activates only through the update control", 
       );
     }
   });
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   await page.evaluate(async () => {
     await globalThis.navigator.serviceWorker.register("./sw.js?e2e-update=1", {
