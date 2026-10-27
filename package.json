@@ -29,7 +29,7 @@
     "audit:dependencies": "node scripts/audit-dependencies.cjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "eslint": "10.11.0",
     "html-validate": "11.16.2",
     "jsdom": "30.1.1",
