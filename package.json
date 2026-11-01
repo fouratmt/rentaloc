@@ -31,7 +31,7 @@
   "devDependencies": {
     "@playwright/test": "1.64.0",
     "eslint": "10.13.0",
-    "html-validate": "11.16.2",
+    "html-validate": "11.17.0",
     "jsdom": "30.1.3",
     "markdownlint-cli2": "0.23.3",
     "prettier": "3.9.10",
